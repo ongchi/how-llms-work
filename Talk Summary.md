@@ -1,23 +1,25 @@
 # How AI Works — Talk Summary
 
 **Audience:** Developers and technically curious people
-**Format:** Concept explanation + runnable JavaScript snippet per section
+**Format:** Concept explanation + interactive browser demo per section
 **Goal:** Demystify LLMs by building intuition from first principles
 
 ---
 
 ## 1. Introduction — AI is Autocomplete at Scale
 
-Modern AI (LLMs like ChatGPT, Claude, Gemini) is fundamentally a very sophisticated next-token 
+Modern AI (LLMs like ChatGPT, Claude, Gemini) is fundamentally a very sophisticated next-token
 predictor. Given everything said so far, what word comes next? That's it.
 
 Most people interact with an **LLM wrapper** — not the model directly.
 The wrapper adds tricks: it formats a system prompt, maintains chat history,
 and can call external tools (weather API, calculator, web search) to augment the raw model output.
 
-<!-- @include examples/01-introduction.js -->
+**Demo:** Character bigram model trained on 5.5M characters of Shakespeare.
+Pick a start character, choose sample or greedy strategy, and watch it generate text.
+An interactive graph shows the top-3 transitions from each character; click any node to start there.
 
-> **Key insight:** Trained on 5.5M characters, this model learned that `q` is always followed by 
+> **Key insight:** Trained on 5.5M characters, this model learned that `q` is always followed by
 `u`, and that `th` almost always precedes `e` — purely from counting.
 Scale this to billions of parameters and trillions of words, and you get GPT-4.
 
@@ -31,27 +33,34 @@ Shakespeare's complete works (5.5M characters) compress down to just **25,900 un
 
 `"To be or not to be, that is the question"` → `[51, 230, 36, 47, 51, 230, 83, 10, 0, 686]`
 
-<!-- @include examples/02-tokens.js -->
+**Demo:** Live tokenizer playground. Type any text and watch it split into colour-coded token chips
+in real time. Each chip's background colour is determined by its vocabulary ID; unknown words
+(not in Shakespeare's top-25,900) appear in red. The encoded ID array and token count are shown below.
+Preset buttons load the Hamlet quote, a pangram, and a word outside the vocabulary.
 
-> **Key insight:** The model sees a stream of integers, never raw text. Token IDs are just indices into a lookup table — and the same word always gets the same ID, no matter where it appears.
+> **Key insight:** The model sees a stream of integers, never raw text. Token IDs are just indices
+> into a lookup table — and the same word always gets the same ID, no matter where it appears.
 
 ---
 
 ## 3. Embeddings — Meaning as Numbers
 
-Each token ID maps to an **embedding**: a vector of 50–1,000 floating-point numbers encoding meaning.
+Each token ID maps to an **embedding**: a vector of 50 floating-point numbers encoding meaning.
 Words used in similar contexts end up with similar vectors — they cluster together in high-dimensional space.
 
 These embeddings were computed from Shakespeare using **PPMI co-occurrence + SVD**: count which words
 appear near each other, weight by statistical surprise (PPMI), then compress to 50 dimensions.
 No human labels. Pure counting.
 
-<!-- @include examples/03-embeddings.js -->
+**Demo:** Interactive embedding explorer over the full 1,000-word Shakespeare vocabulary.
+Select any word from the dropdown to see animated cosine-similarity bars for the 8 nearest words.
+Below, a word-arithmetic row computes `A − B + C ≈ ?` live — change any of the three selects
+and the top-3 results update instantly as styled chips.
 
 > **Key insight:** `night ↔ day` scores 0.752 — the model learned they're related purely because
 > Shakespeare always uses them in the same kinds of sentences.
-> `father − man + woman` returns `[wife, daughter, mother]` — all female family members —
-> because it learned gender and family structure from context alone.
+> `king − man + woman` returns results including `queen` — because it learned gender and semantic
+> roles from context alone, with no human labels.
 
 ---
 
@@ -65,11 +74,14 @@ Static embeddings assign "arms" one fixed vector. But the meaning depends on the
 The **attention mechanism** lets each token score every other token and pull in a weighted blend
 of their embeddings — effectively asking *"given my current context, who should I listen to?"*
 
-<!-- @include examples/04-attention.js -->
+**Demo:** Type any sentence (words from the 1,000-word Shakespeare embedding vocab) or pick a
+preset (embrace / battle / royalty). Click any word chip to see animated attention bars showing
+the dot-product attention weights from that word to every other token in the sentence.
+Unknown words appear greyed out.
 
-> **Key insight:** In the first sentence "arms" pays most attention to "queen" — it's an embrace.
-> In the second, it pays most attention to "battle" — it's weapons.
-> Same word. Same initial embedding. Completely different contextualised meaning.
+> **Key insight:** In the embrace sentence "arms" pays most attention to `the` (16.8%), `his` (15.5%),
+> `queen` (15.4%). In the battle sentence it pays most attention to `battle` (16.3%), `and` (14.2%),
+> `men` (12.7%). Same word. Same initial embedding. Completely different contextualised meaning.
 > This is what the 96 attention heads in GPT-4 are doing at every layer, for every token.
 
 ---
@@ -92,10 +104,13 @@ Each of the previous sections is one stage of the same pipeline:
 The **temperature** parameter scales the logits before softmax.
 Low temperature sharpens the distribution (predictable); high temperature flattens it (creative).
 
-<!-- @include examples/05-transformer-loop.js -->
+**Demo:** Live temperature playground driven by a Shakespeare word-trigram model.
+Edit the prompt textarea or press `+ next word` to sample and append the next token.
+The temperature slider (0.1–2.5) instantly redraws the top-8 next-word probability bars,
+making the peaked-vs-flat effect visible. `Reset` returns to the Hamlet quote.
 
-> **Key insight:** At temperature 0.3 the model almost always completes with *"that is the matter"* —
-> Shakespeare's actual line from Hamlet. At temperature 2.0 it picks rare, surprising words.
+> **Key insight:** At low temperature the model almost always completes with *"that is the matter"* —
+> Shakespeare's actual line from Hamlet. At high temperature it picks rare, surprising words.
 > This single knob is how you tune a model from a deterministic tool to a creative collaborator.
 
 ---
@@ -113,9 +128,8 @@ No human labels needed — the correct answer is already in the text.
 human raters score model responses. A separate "reward model" learns their preferences,
 then the LLM is fine-tuned to maximize that reward — making it helpful, harmless, and honest.
 
-<!-- @include examples/06-training.js -->
-
-> **Key insight:** Real training runs this loop billions of times, across billions of parameters, on thousands of GPUs. Same math, vastly bigger scale.
+> **Key insight:** Real training runs this loop billions of times, across billions of parameters,
+> on thousands of GPUs. Same math, vastly bigger scale.
 
 ---
 
@@ -132,35 +146,28 @@ language model so the system can reason about both text and images.
 generate images by starting from pure random noise and iteratively denoising it — like
 developing a photograph in reverse.
 
-<!-- @include examples/07-cnn.js -->
-
-> **Key insight:** A deep CNN stacks many such layers. Early layers detect edges, later layers detect eyes, faces, cars — complexity builds up automatically through training.
+> **Key insight:** A deep CNN stacks many such layers. Early layers detect edges, later layers
+> detect eyes, faces, cars — complexity builds up automatically through training.
 
 ---
 
-## 8. Conclusion — The Full Picture
+## 8. Now You Know How It Works
 
-Put it all together:
-
-| Layer | What it does |
-|---|---|
-| Tokenizer | Converts text → integer IDs |
-| Embedding table | Maps IDs → dense vectors (meaning) |
-| Attention layers | Contextualizes each vector using all others |
-| Output head | Projects to vocabulary probabilities |
-| Sampler | Picks next token |
-| Wrapper | Manages history, tools, system prompt |
-| RLHF | Makes the whole thing helpful and safe |
-
-**ChatGPT / Claude / Gemini = all of the above,
-trained on trillions of tokens, with billions of parameters, fine-tuned with human feedback.**
-
-### What this means for you as a developer
-
-- **Prompt engineering is real** — the system prompt and conversation history are just more tokens. Context matters.
-- **Hallucinations are features, not bugs** — the model is sampling from a distribution. It doesn't "know" facts; it predicts plausible continuations.
-- **Tool use / function calling** is the wrapper giving the model a way to output structured tokens that trigger real code execution.
-- **RAG (Retrieval-Augmented Generation)** just means injecting relevant documents into the context before asking the model to answer.
-- **Fine-tuning** is RLHF on a smaller, domain-specific dataset — same mechanism, different data.
+- **Prompt engineering** — the system prompt and conversation history are just more tokens. Context matters.
+- **Hallucinations** — the model is sampling a distribution. It predicts plausible continuations, not facts.
+- **Tool use / function calling** — the wrapper routes structured output tokens to real function calls.
+- **RAG (Retrieval-Augmented Generation)** — inject relevant documents into the context before asking. Same mechanism.
+- **Fine-tuning** — RLHF on a smaller, domain-specific dataset. Same mechanism, different data.
 
 > **The magic isn't magic — it's matrix multiplication at scale, trained on human knowledge, guided by human feedback.**
+
+---
+
+## Credits
+
+| | | |
+|---|---|---|
+| Training corpus | *The Complete Works of William Shakespeare* | Project Gutenberg eBook #100 — public domain |
+| Presentation | reveal.js | Hakim El Hattab — MIT License |
+| Graph visualisation | Sigma.js & Graphology | MIT License |
+| Syntax highlighting | highlight.js | BSD 3-Clause License |
