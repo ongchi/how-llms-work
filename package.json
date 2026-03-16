@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build:trigrams": "node scripts/build-trigrams.mjs",
+    "build:embeddings": "node scripts/build-embeddings.mjs",
+    "build:bigrams": "node scripts/build-bigrams.mjs",
+    "build:tokenizer": "node scripts/build-tokenizer.mjs",
+    "build:data": "node scripts/build-bigrams.mjs && node scripts/build-tokenizer.mjs && node scripts/build-trigrams.mjs && node scripts/build-embeddings.mjs"
+  }
+}

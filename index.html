@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How LLMs Work</title>
+
+  <!-- Reveal.js core -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+
+  <!-- Sigma.js + Graphology for network graph -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/graphology/0.25.4/graphology.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.4.0/sigma.min.js"></script>
+
+  <!-- Syntax highlighting — GitHub theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="revealjs-styles.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 1. TITLE                                                           -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="title" class="title-slide">
+        <h1>How LLMs Work</h1>
+        <p class="subtitle">From autocomplete to ChatGPT &mdash; in plain JavaScript</p>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 2. S1 — CONCEPT + CODE (vertical stack)                            -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+      <section id="s1-concept">
+        <span class="tag tag-1">01 &mdash; Introduction</span>
+        <h2 class="c1">LLMs are Autocomplete at Scale</h2>
+        <div class="content">
+          <ul>
+            <li>An LLM does one thing: <strong>predict the next token</strong></li>
+            <li>"Given everything before, what word comes next?"</li>
+            <li>The <strong>wrapper</strong> (ChatGPT, Claude) adds system prompt, chat history, tool calls</li>
+          </ul>
+          <div class="insight">
+            Even a character-level frequency table 'learns' from data. Scale to billions of parameters + trillions of words = GPT-4.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 3. S1 — DEMO                                                        -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s1-demo">
+        <span class="tag tag-1">01 &mdash; Demo</span>
+        <h2 class="c1">Character Bigram Model from 5.5M chars of Shakespeare</h2>
+        <div class="content">
+          <div class="demo-controls">
+            <div class="demo-field">
+              <label for="demo1-start">Start</label>
+              <input id="demo1-start" type="text" maxlength="1" value="t" class="demo-input-char"
+                     oninput="runDemo1()">
+            </div>
+            <div class="demo-field demo-field-wide">
+              <label for="demo1-length">Length: <span id="demo1-length-val">60</span></label>
+              <input id="demo1-length" type="range" min="20" max="200" value="60"
+                     oninput="document.getElementById('demo1-length-val').textContent = this.value; runDemo1()">
+            </div>
+            <div class="demo-field">
+              <label for="demo1-strategy">Strategy</label>
+              <select id="demo1-strategy" class="demo-select" onchange="runDemo1()">
+                <option value="sample">Sample</option>
+                <option value="greedy">Greedy</option>
+              </select>
+            </div>
+            <button class="run-btn" onclick="runDemo1()">&#8635; Regenerate</button>
+          </div>
+          <div class="demo-main">
+            <div class="demo-graph-wrap">
+              <div id="demo1-graph" class="demo-graph"></div>
+              <div class="graph-controls">
+                <button class="graph-ctrl-btn" onclick="demo1Zoom(1)" title="Zoom in">+</button>
+                <button class="graph-ctrl-btn" onclick="demo1Zoom(-1)" title="Zoom out">−</button>
+                <button class="graph-ctrl-btn" onclick="demo1ResetCamera()" title="See whole graph">⊡</button>
+              </div>
+            </div>
+            <div id="demo1-output" class="demo-output"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 4. S1 — CODE                                                       -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s1-code">
+        <span class="tag tag-1">01 &mdash; Code</span>
+        <div class="content">
+          <div class="code-split" data-src="examples/01-introduction.js">
+            <div class="split-source">
+              <pre><code class="language-javascript" data-trim>// Bigram model prebuilt by scripts/build-bigrams.mjs → data/bigrams.json
+const model = await fetch("data/bigrams.json").then(r => r.json());
+
+// Greedy: always pick the most likely next character
+generate(model, "t", 40, predictGreedy)
+// → "the the the the the the the the the..."
+//   Gets stuck — always picks the single most likely character
+
+// Sample: pick proportionally to frequency
+generate(model, "t", 60, sample)
+// → "thou hast not so much brain as ear-wax, go"
+//   Learned English patterns purely from counting</code></pre>
+            </div>
+            <div class="split-result">
+              <div class="run-output"></div>
+              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+            </div>
+          </div>
+          <div class="insight" style="border-left-color:#0969da;">
+            After 't' in Shakespeare: h 34.5% &rarr; space 22.1% &rarr; o 9.1% &nbsp;|&nbsp; After 'q': u 100% &mdash; it learned spelling rules.
+          </div>
+        </div>
+      </section>
+
+      </section><!-- end S1 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 5. S2 — CONCEPT + CODE (vertical stack)                            -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+      <section id="s2-concept">
+        <span class="tag tag-2">02 &mdash; Tokens</span>
+        <h2 class="c2">How LLMs Read Text</h2>
+        <div class="content">
+          <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
+          <div class="two-col" style="margin-top:14px;">
+            <div>
+              <div class="callout-num">996K<small>tokens in Shakespeare</small></div>
+              <div class="callout-num">25,900<small>unique token types</small></div>
+            </div>
+            <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1;">
+              <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
+              <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
+              <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
+              <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
+            </div>
+          </div>
+          <div class="insight">
+            <code class="code-green">"To be or not to be, that is the question"</code>
+            &nbsp;&rarr;&nbsp;
+            <code class="code-white">[51, 230, 36, 47, 51, 230, 83, 10, 0, 686]</code>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 6. S2 — CODE                                                       -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s2-code">
+        <span class="tag tag-2">02 &mdash; Code</span>
+        <div class="content">
+          <div class="code-split" data-src="examples/02-tokens.js">
+            <div class="split-source">
+              <pre><code class="language-javascript" data-trim>const t = await buildTokenizer("shakespeare.txt");
+
+t.vocabSize  // 25,900
+
+t.topTokens  // [["the",30526], ["and",28567], ["i",24188], ...]
+             // Frequent words get low IDs
+
+t.encode("To be or not to be that is the question")
+// [51, 230, 36, 47, 51, 230, 83, 10, 0, 686]
+// "to"=51 and "be"=230 each appear twice → same ID both times
+
+t.decode([51, 230, 36, 47, 51, 230, 83, 10, 0, 686])
+// "to be or not to be that is the question"</code></pre>
+            </div>
+            <div class="split-result">
+              <div class="run-output"></div>
+              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </section><!-- end S2 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 7. S3 — CONCEPT + CODE (vertical stack)                            -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+      <section id="s3-concept">
+        <span class="tag tag-3">03 &mdash; Embeddings</span>
+        <h2 class="c3">Meaning as Numbers</h2>
+        <div class="content">
+          <p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
+          <ul>
+            <li>Method: <strong>PPMI co-occurrence + SVD</strong> on Shakespeare</li>
+            <li>Count which words appear near each other</li>
+            <li>Weight by statistical surprise (PPMI)</li>
+            <li>Compress 1000D &rarr; 50D via truncated SVD</li>
+            <li><strong>No human labels.</strong> Pure statistics.</li>
+          </ul>
+          <div class="insight">
+            The model discovers that "king" and "queen" are related &mdash; <strong>nobody told it</strong>.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 8. S3 — CODE                                                       -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s3-code">
+        <span class="tag tag-3">03 &mdash; Code</span>
+        <div class="content">
+          <div class="code-split" data-src="examples/03-embeddings.js">
+            <div class="split-source">
+              <pre><code class="language-javascript" data-trim>// Cosine similarity between real 50D Shakespeare embeddings
+sim("night",  "day")     // 0.752  ← always in contrast
+sim("father", "mother")  // 0.611  ← both parents
+sim("king",   "queen")   // 0.570  ← both royalty
+sim("love",   "hate")    // 0.441  ← opposites co-occur!
+sim("king",   "sword")   // 0.010  ← unrelated topics
+
+// Word arithmetic: a − b + c ≈ ?
+analogy("father", "man", "woman")
+// → [wife(0.52), daughter(0.49), mother(0.46)]
+// All female family members — no labels given
+
+analogy("king", "man", "woman")
+// → [richard(0.54), henry(0.52), queen(0.44)]
+// Shakespeare's kings + queen</code></pre>
+            </div>
+            <div class="split-result">
+              <div class="run-output"></div>
+              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </section><!-- end S3 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 9. S4 — CONCEPT + CODE (vertical stack)                            -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+      <section id="s4-concept">
+        <span class="tag tag-4">04 &mdash; Attention</span>
+        <h2 class="c4">Context Changes Meaning</h2>
+        <div class="content">
+          <p>Static embeddings give every word one fixed vector. <strong>Attention</strong> lets each token look at all others and update its representation based on context.</p>
+          <div class="attn-compare">
+            <div class="attn-box">
+              <h4>"his <span style="color:#cf222e;">arms</span> about the queen"</h4>
+              <div class="attn-row">
+                <span class="attn-word">queen</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:93%; background:#cf222e;"></div></div>
+                <span class="attn-pct">15.4%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">his</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:95%; background:#cf222e; opacity:0.7;"></div></div>
+                <span class="attn-pct">15.5%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">about</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:84%; background:#cf222e; opacity:0.5;"></div></div>
+                <span class="attn-pct">13.8%</span>
+              </div>
+              <div class="attn-label" style="color:#cf222e;">&rarr; EMBRACE</div>
+            </div>
+            <div class="attn-box">
+              <h4>"with <span style="color:#cf222e;">arms</span> and men in battle"</h4>
+              <div class="attn-row">
+                <span class="attn-word">battle</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:100%; background:#cf222e;"></div></div>
+                <span class="attn-pct">16.3%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">and</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:87%; background:#cf222e; opacity:0.7;"></div></div>
+                <span class="attn-pct">14.2%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">men</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:78%; background:#cf222e; opacity:0.5;"></div></div>
+                <span class="attn-pct">12.7%</span>
+              </div>
+              <div class="attn-label" style="color:#bc4c00;">&rarr; WEAPONS</div>
+            </div>
+          </div>
+          <div class="insight">
+            Same word. Same initial embedding. <strong>Completely different contextualised meaning.</strong> GPT-4 has 96 attention heads doing this at every layer, for every token.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 10. S4 — CODE                                                      -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s4-code">
+        <span class="tag tag-4">04 &mdash; Code</span>
+        <div class="content">
+          <div class="code-split" data-src="examples/04-attention.js">
+            <div class="split-source">
+              <pre><code class="language-javascript" data-trim>// Load real 50D Shakespeare embeddings (prebuilt by scripts/build-embeddings.mjs)
+const embeddings = await fetch("data/embeddings.json").then(r => r.json());
+
+// Dot-product attention: each token scores all others, softmax → weights
+function attend(sentence) {
+  const words = sentence.split(" ");
+  const vecs  = words.map(w => embeddings[w]);
+  return words.map((word, i) => {
+    const weights = softmax(vecs.map(v => dotProduct(vecs[i], v)));
+    return { word, top: topWeights(words, weights, i) };
+  });
+}
+
+attend("his arms about the queen")[1].top
+// [{to:"queen",weight:0.154},{to:"his",weight:0.155},...]
+
+attend("with arms and men in battle")[1].top
+// [{to:"battle",weight:0.163},{to:"and",weight:0.142},...]</code></pre>
+            </div>
+            <div class="split-result">
+              <div class="run-output"></div>
+              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </section><!-- end S4 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 11. S5 — CONCEPT + CODE (vertical stack)                           -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+      <section id="s5-concept">
+        <span class="tag tag-5">05 &mdash; The Transformer Loop</span>
+        <h2 class="c5">Putting It Together</h2>
+        <div class="content">
+          <div class="pipeline">
+            <div class="pipe-step">
+              <span class="pipe-num">1</span>
+              <span class="pipe-name">Tokenize</span>
+              <span class="pipe-desc">"to be or not to..." &rarr; [51, 230, 36, 47, ...]</span>
+              <span class="pipe-ref">&sect;2</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">2</span>
+              <span class="pipe-name">Embed</span>
+              <span class="pipe-desc">IDs &rarr; 50-dimensional vectors</span>
+              <span class="pipe-ref">&sect;3</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">3</span>
+              <span class="pipe-name">Attend &times;N</span>
+              <span class="pipe-desc">each token listens to all others</span>
+              <span class="pipe-ref">&sect;4</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">4</span>
+              <span class="pipe-name">Logits</span>
+              <span class="pipe-desc">linear projection &rarr; raw score per vocab word</span>
+              <span class="pipe-ref"></span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">5</span>
+              <span class="pipe-name">Softmax(T)</span>
+              <span class="pipe-desc">scores &rarr; probability distribution</span>
+              <span class="pipe-ref"></span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">6</span>
+              <span class="pipe-name">Sample</span>
+              <span class="pipe-desc">pick next token &rarr; go to step 1 &rarr; repeat</span>
+              <span class="pipe-ref"></span>
+            </div>
+          </div>
+          <div class="insight" style="border-left-color:#8250df;">
+            <strong>Temperature T</strong>: low = peaked distribution (predictable) &middot; high = flat (creative)
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 12. S5 — CODE                                                      -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s5-code">
+        <span class="tag tag-5">05 &mdash; Code</span>
+        <div class="content">
+          <div class="code-split" data-src="examples/05-transformer-loop.js">
+            <div class="split-source">
+              <pre><code class="language-javascript" data-trim>// Trigrams prebuilt from Shakespeare (scripts/build-trigrams.mjs → data/trigrams.json)
+const trigrams = await fetch("data/trigrams.json").then(r => r.json());
+
+// Prompt: "to be or not to be, that is the ___"
+// Context (last 2 tokens): "is the"
+// Trigram counts ≈ transformer logits:
+//   matter:26  very:17  man:15  king:15  duke:12 ...
+
+// temperature = 0.3  (focused)
+//   P("matter") = 41.2%   → "that is the matter"  ← Hamlet's actual line ✓
+
+// temperature = 1.0  (balanced)
+//   P("matter") = 16.8%   P("king") = 15.1%
+//   → "that is the king"
+
+// temperature = 2.0  (creative)
+//   → "that is the prettiest"</code></pre>
+            </div>
+            <div class="split-result">
+              <div class="run-output"></div>
+              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+            </div>
+          </div>
+          <div class="insight" style="border-left-color:#8250df;">
+            One knob turns a deterministic tool into a <strong>creative collaborator</strong>.
+          </div>
+        </div>
+      </section>
+
+      </section><!-- end S5 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 13. S6 — CONCEPT                                                   -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s6-concept">
+        <span class="tag tag-6">06 &mdash; Training</span>
+        <h2 class="c6">How Models Learn</h2>
+        <div class="content">
+          <ul>
+            <li>Start with <strong>random weights</strong> &rarr; make terrible predictions</li>
+            <li>Measure error &rarr; compute gradient &rarr; nudge weights &rarr; repeat</li>
+            <li><strong>Self-supervised:</strong> every sentence on the internet is a training example &mdash; no labels needed</li>
+            <li><strong>RLHF:</strong> human raters score outputs &rarr; reward model &rarr; fine-tune to be helpful, harmless, honest</li>
+          </ul>
+          <div class="two-col" style="margin-top:16px;">
+            <div>
+              <div class="callout-num">~1T<small>tokens for GPT-3</small></div>
+            </div>
+            <div>
+              <div class="callout-num">175B<small>parameters (GPT-3)</small></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 14. S7 — CONCEPT                                                   -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s7-concept">
+        <span class="tag tag-7">07 &mdash; Beyond Text</span>
+        <h2 class="c7">CNNs, Multimodal &amp; Diffusion</h2>
+        <div class="content">
+          <ul>
+            <li><strong>CNNs:</strong> slide small filter kernels across pixels &mdash; detect edges &rarr; shapes &rarr; faces</li>
+            <li><strong>Multimodal</strong> (GPT-4o, Gemini, Claude): CNN vision encoder + language model</li>
+            <li><strong>Diffusion</strong> (Stable Diffusion, DALL-E): start with pure random noise, iteratively denoise &rarr; sharp image</li>
+          </ul>
+          <div class="insight">
+            A CNN with a <strong>[&minus;1,&minus;1,&minus;1 / &minus;1,8,&minus;1 / &minus;1,&minus;1,&minus;1]</strong> kernel detects edges. Deep CNNs stack hundreds of such layers &mdash; complexity emerges automatically through training.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 15. S8 — TABLE                                                     -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s8-table">
+        <span class="tag tag-8">08 &mdash; The Full Picture</span>
+        <h2 class="c8">ChatGPT = All of the Above</h2>
+        <div class="content">
+          <table class="layer-table">
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Tokenizer</td><td>text &rarr; integer IDs</td></tr>
+              <tr><td>Embedding table</td><td>IDs &rarr; dense vectors (meaning)</td></tr>
+              <tr><td>Attention &times; N</td><td>contextualise each vector using all others</td></tr>
+              <tr><td>Output head</td><td>project to vocabulary probabilities</td></tr>
+              <tr><td>Sampler</td><td>pick next token (temperature controls creativity)</td></tr>
+              <tr><td>Wrapper</td><td>manages history, tools, system prompt</td></tr>
+              <tr><td>RLHF</td><td>makes the whole thing helpful and safe</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 18. S8 — TIPS                                                      -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s8-tips">
+        <span class="tag tag-8">08 &mdash; Developer Takeaways</span>
+        <h2 class="c8">What This Means for You</h2>
+        <div class="content">
+          <ul>
+            <li><strong>Prompt engineering</strong> &mdash; system prompt + history are just more tokens. Context matters.</li>
+            <li><strong>Hallucinations</strong> &mdash; the model is sampling a distribution. It predicts plausible continuations, not facts.</li>
+            <li><strong>Tool calling</strong> &mdash; the wrapper routes structured output tokens to real function calls.</li>
+            <li><strong>RAG</strong> &mdash; inject relevant documents into context before asking. Same mechanism.</li>
+            <li><strong>Fine-tuning</strong> &mdash; RLHF on a smaller domain-specific dataset.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 19. CLOSING                                                        -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="closing" class="closing-slide">
+        <blockquote>
+          The magic isn't magic &mdash; it's matrix multiplication at scale, trained on human knowledge, guided by human feedback.
+        </blockquote>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Reveal.js -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      controls: true,
+      progress: true,
+      slideNumber: 'c/t',
+      hash: true,
+      transition: 'slide',
+      center: false,
+    });
+
+    Reveal.on('ready', () => { hljs.highlightAll(); });
+  </script>
+
+  <!-- Runnable examples runtime -->
+  <script>
+    const _AF = Object.getPrototypeOf(async function(){}).constructor;
+
+    async function runExample(filePath, btn, out) {
+      if (btn) { btn.disabled = true; btn.textContent = '\u23F3 Running\u2026'; }
+      out.classList.remove('error', 'visible');
+      out.textContent = '';
+
+      const lines = [];
+      const origLog = console.log;
+      console.log = (...args) => {
+        lines.push(args.map(a =>
+          typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a)
+        ).join(' '));
+        origLog.apply(console, args);
+      };
+
+      try {
+        const code = await fetch(filePath).then(r => r.text());
+        await new _AF(code)();
+        out.textContent = lines.join('\n') || '(no output)';
+      } catch(e) {
+        out.textContent = 'Error: ' + e.message;
+        out.classList.add('error');
+      } finally {
+        console.log = origLog;
+        if (btn) { btn.textContent = '\u21BB Run again'; btn.disabled = false; }
+        out.classList.add('visible');
+      }
+    }
+
+    let _s1Model = null;
+    let _demo1Timer = null;
+    let _demo1Graph = null;
+    let _demo1Camera = null;
+
+    function initDemo1Graph(model, container) {
+      const graph = new graphology.Graph({ type: 'directed', multi: false });
+
+      // Arrange characters in a circle
+      const chars = Object.keys(model);
+      chars.forEach((char, i) => {
+        const angle = (2 * Math.PI * i) / chars.length - Math.PI / 2;
+        graph.addNode(char, {
+          x: Math.cos(angle),
+          y: Math.sin(angle),
+          size: 12,
+          label: char === ' ' ? '·' : char,
+          color: '#f0f0f0',
+          forceLabel: true,
+        });
+      });
+
+      // Top-3 outgoing edges per character
+      for (const [src, counts] of Object.entries(model)) {
+        const total = Object.values(counts).reduce((a, b) => a + b, 0);
+        Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3)
+          .forEach(([tgt, cnt]) => {
+            if (src !== tgt && !graph.hasEdge(src, tgt)) {
+              graph.addEdge(src, tgt, {
+                size: Math.max(0.5, (cnt / total) * 5),
+                color: '#d0d7de',
+              });
+            }
+          });
+      }
+
+      const renderer = new Sigma(graph, container, {
+        zIndex: true,
+        renderEdgeLabels: false,
+        labelFont: 'monospace',
+        labelWeight: 'bold',
+        labelSize: 18,
+        labelColor: { color: '#1f2328' },
+        defaultEdgeColor: '#d0d7de',
+        allowInvalidContainer: true,
+      });
+      _demo1Camera = renderer.getCamera();
+
+      let _startChar = null;
+      let _hoveredNode = null;
+
+      function getTop3(char) {
+        const counts = model[char] || {};
+        return new Set(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t));
+      }
+
+      function applyReducers() {
+        const activeTop3 = _startChar ? getTop3(_startChar) : new Set();
+        const hoverTop3  = _hoveredNode && _hoveredNode !== _startChar ? getTop3(_hoveredNode) : new Set();
+
+        renderer.setSetting('nodeReducer', (node, data) => {
+          if (node === _startChar)   return { ...data, color: '#0969da', zIndex: 2 };
+          if (node === _hoveredNode) return { ...data, color: '#8250df', zIndex: 2 };
+          if (activeTop3.has(node))  return { ...data, color: '#9dc8f5', zIndex: 1 };
+          if (hoverTop3.has(node))   return { ...data, color: '#d2b4fe', zIndex: 1 };
+          return { ...data, color: '#f0f0f0', zIndex: 0 };
+        });
+        renderer.setSetting('edgeReducer', (edge, data) => {
+          const src = graph.source(edge);
+          if (src === _startChar)   return { ...data, color: '#0969da', size: data.size * 2.5, zIndex: 1 };
+          if (src === _hoveredNode) return { ...data, color: '#8250df', size: data.size * 2,   zIndex: 1 };
+          return { ...data, color: '#ebebeb', size: Math.max(0.3, data.size * 0.6), zIndex: 0 };
+        });
+      }
+
+      // Custom hover/click — corrects for reveal.js CSS transform scaling.
+      // Sigma's built-in hit-testing uses container.offsetWidth for the coordinate
+      // system but event.clientX is in visual (post-transform) pixels, causing a
+      // shift. We compute corrected canvas-pixel coordinates ourselves.
+      container.addEventListener('mousemove', (event) => {
+        const rect = container.getBoundingClientRect();
+        const scaleX = container.offsetWidth  / rect.width;
+        const scaleY = container.offsetHeight / rect.height;
+        const mx = (event.clientX - rect.left) * scaleX;
+        const my = (event.clientY - rect.top)  * scaleY;
+
+        const threshold = 24;
+        let closest = null, closestDist = threshold;
+        graph.forEachNode((node, attrs) => {
+          const vp = renderer.graphToViewport(attrs);
+          const dist = Math.hypot(vp.x - mx, vp.y - my);
+          if (dist < closestDist) { closestDist = dist; closest = node; }
+        });
+
+        if (closest !== _hoveredNode) { _hoveredNode = closest; applyReducers(); }
+      });
+
+      container.addEventListener('mouseleave', () => {
+        if (_hoveredNode !== null) { _hoveredNode = null; applyReducers(); }
+      });
+
+      container.addEventListener('click', () => {
+        if (_hoveredNode) {
+          document.getElementById('demo1-start').value = _hoveredNode;
+          runDemo1();
+        }
+      });
+
+      return {
+        update(startChar) {
+          _startChar = startChar;
+          applyReducers();
+        },
+        kill() { renderer.kill(); },
+      };
+    }
+
+    function demo1Zoom(dir) {
+      if (!_demo1Camera) return;
+      const s = _demo1Camera.getState();
+      _demo1Camera.setState({ x: s.x, y: s.y, angle: s.angle, ratio: dir > 0 ? s.ratio * 0.75 : s.ratio / 0.75 });
+    }
+
+    function demo1ResetCamera() {
+      if (!_demo1Camera) return;
+      _demo1Camera.animatedReset();
+    }
+
+    async function runDemo1() {
+      clearTimeout(_demo1Timer);
+      _demo1Timer = setTimeout(async () => {
+        const out = document.getElementById('demo1-output');
+        if (!_s1Model) {
+          out.textContent = 'Loading…';
+          _s1Model = await fetch("data/bigrams.json").then(r => r.json());
+        }
+        const start = document.getElementById('demo1-start').value.toLowerCase() || 't';
+        const length = parseInt(document.getElementById('demo1-length').value);
+        const strategy = document.getElementById('demo1-strategy').value;
+
+        const graphContainer = document.getElementById('demo1-graph');
+        if (!_demo1Graph && graphContainer.clientWidth > 0) _demo1Graph = initDemo1Graph(_s1Model, graphContainer);
+        if (_demo1Graph) _demo1Graph.update(start);
+
+        const predictGreedy = (model, char) => {
+          const counts = model[char];
+          if (!counts) return '?';
+          return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+        };
+        const sampleChar = (model, char) => {
+          const counts = model[char];
+          if (!counts) return '?';
+          const entries = Object.entries(counts);
+          const total = entries.reduce((s, [, c]) => s + c, 0);
+          let r = Math.random() * total;
+          for (const [next, cnt] of entries) { r -= cnt; if (r <= 0) return next; }
+          return entries[entries.length - 1][0];
+        };
+
+        const fn = strategy === 'greedy' ? predictGreedy : sampleChar;
+        let text = start;
+        for (let i = 0; i < length; i++) text += fn(_s1Model, text[text.length - 1]);
+        out.textContent = text;
+      }, 80);
+    }
+
+    function rerunTab(btn) {
+      const out = btn.previousElementSibling;
+      runExample(btn.closest('.code-split').dataset.src, btn, out);
+    }
+
+    Reveal.on('slidechanged', event => {
+      if (event.currentSlide.id === 's1-demo') {
+        runDemo1();
+        return;
+      }
+      const split = event.currentSlide.querySelector('.code-split');
+      if (split) {
+        const out = split.querySelector('.run-output');
+        const btn = split.querySelector('.rerun-btn');
+        if (!out.classList.contains('visible')) runExample(split.dataset.src, btn, out);
+      }
+    });
+  </script>
+</body>
+</html>
