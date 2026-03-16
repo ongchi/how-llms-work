@@ -166,6 +166,7 @@
 .c6 { color: #268bd2; }
 .c7 { color: #859900; }
 .c8 { color: #b58900; }
+.c9 { color: #cb4b16; }
 .muted { color: #93a1a1; }
 .code-green { color: #859900; }
 .code-white  { color: #073642; }
@@ -191,6 +192,7 @@
 .tag-6 { background: rgba(38,139,210,0.12);  color: #268bd2; }
 .tag-7 { background: rgba(133,153,0,0.12);   color: #859900; }
 .tag-8 { background: rgba(181,137,0,0.12);   color: #b58900; }
+.tag-9 { background: rgba(203,75,22,0.12);   color: #cb4b16; }
 
 /* ── Insight box ─────────────────────────────────────────────────────────── */
 

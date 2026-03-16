@@ -408,10 +408,39 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 18. S8 — TIPS                                                      -->
+      <!-- 15. S8 — CONCEPT                                                   -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s8-tips">
-        <span class="tag tag-8">08 &mdash; Developer Takeaways</span>
+      <section id="s8-concept">
+        <span class="tag tag-9">08 &mdash; AI Agents</span>
+        <h2 class="c9">LLMs with Agency</h2>
+        <div class="content">
+          <p style="margin-bottom:10px;">An agent wraps an LLM in a <strong>loop</strong>: the model emits an action, a runtime executes it, the result goes back into context &mdash; repeat until done.</p>
+          <pre><code class="language-javascript" data-trim>
+// Minimal ReAct agent loop
+async function runAgent(goal) {
+  let context = [{ role: 'user', content: goal }];
+  while (true) {
+    const response = await llm(context);          // next token prediction
+    if (response.type === 'answer') return response.text;
+    // model requested a tool call
+    const result = await executeTool(response.tool, response.args);
+    context.push({ role: 'tool', content: result }); // feed result back
+  }
+}
+          </code></pre>
+          <div class="three-col" style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; font-size:0.85em;">
+            <div class="insight" style="margin:0;padding:10px 12px;"><strong>Tools</strong><br>search, code exec, APIs — functions the LLM calls by name</div>
+            <div class="insight" style="margin:0;padding:10px 12px;"><strong>Memory</strong><br>short-term = context window; long-term = RAG / vector DB</div>
+            <div class="insight" style="margin:0;padding:10px 12px;"><strong>Planning</strong><br>ReAct, chain-of-thought, task decomposition across multiple calls</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 19. S9 — TIPS                                                      -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section id="s9-tips">
+        <span class="tag tag-8">09 &mdash; Developer Takeaways</span>
         <h2 class="c8">Now You Know How It Works</h2>
         <div class="content">
           <ul>
@@ -420,6 +449,7 @@
             <li><strong>Tool calling</strong> &mdash; the wrapper routes structured output tokens to real function calls.</li>
             <li><strong>RAG</strong> &mdash; inject relevant documents into context before asking. Same mechanism.</li>
             <li><strong>Fine-tuning</strong> &mdash; RLHF on a smaller domain-specific dataset.</li>
+            <li><strong>Agents</strong> &mdash; LLM + tools + a loop. The model still just predicts tokens; your runtime does the rest.</li>
           </ul>
         </div>
       </section>

@@ -151,13 +151,48 @@ developing a photograph in reverse.
 
 ---
 
-## 8. Now You Know How It Works
+## 8. AI Agents — LLMs with Agency
+
+A chatbot gives one response per prompt. An **agent** wraps that same LLM in a loop:
+the model emits an action, a runtime executes it, the result is fed back into the context,
+and the cycle repeats until the goal is reached.
+
+The model itself hasn't changed — it still just predicts the next token.
+The runtime is what makes it agentic.
+
+```
+Goal → [LLM] → Action (tool call / text)
+             → Runtime executes tool
+             → Observation fed back into context
+             → [LLM] → ... → Final answer
+```
+
+**Three building blocks:**
+
+| Block | What it is |
+|---|---|
+| **Tools** | Named functions the LLM can invoke (search, code execution, APIs, file I/O) |
+| **Memory** | Short-term = context window; Long-term = RAG / vector database |
+| **Planning** | ReAct loop (Reason + Act), chain-of-thought, task decomposition |
+
+**Multi-agent systems:** An orchestrator LLM delegates subtasks to specialist agents,
+each with their own tools and context. Results flow back to the orchestrator.
+
+> **Key insight:** An agent is not a new kind of AI — it's an LLM plus a runtime loop.
+> Every "magic" capability (browsing the web, writing and running code, booking a calendar)
+> is just a tool call: the model emits structured JSON, your code does the actual work,
+> and the result becomes the next tokens in context.
+
+---
+
+## 9. Now You Know How It Works
 
 - **Prompt engineering** — the system prompt and conversation history are just more tokens. Context matters.
 - **Hallucinations** — the model is sampling a distribution. It predicts plausible continuations, not facts.
 - **Tool use / function calling** — the wrapper routes structured output tokens to real function calls.
 - **RAG (Retrieval-Augmented Generation)** — inject relevant documents into the context before asking. Same mechanism.
 - **Fine-tuning** — RLHF on a smaller, domain-specific dataset. Same mechanism, different data.
+- **Agents** — LLM + tools + a loop. The model still just predicts tokens; your runtime does the rest.
 
 > **The magic isn't magic — it's matrix multiplication at scale, trained on human knowledge, guided by human feedback.**
 
