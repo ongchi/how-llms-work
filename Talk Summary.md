@@ -23,6 +23,8 @@ An interactive graph shows the top-3 transitions from each character; click any 
 `u`, and that `th` almost always precedes `e` — purely from counting.
 Scale this to billions of parameters and trillions of words, and you get GPT-4.
 
+<!-- @include examples/01-introduction.js -->
+
 ---
 
 ## 2. Tokens — How AI Reads Text
@@ -40,6 +42,8 @@ Preset buttons load the Hamlet quote, a pangram, and a word outside the vocabula
 
 > **Key insight:** The model sees a stream of integers, never raw text. Token IDs are just indices
 > into a lookup table — and the same word always gets the same ID, no matter where it appears.
+
+<!-- @include examples/02-tokens.js -->
 
 ---
 
@@ -62,6 +66,8 @@ and the top-3 results update instantly as styled chips.
 > `king − man + woman` returns results including `queen` — because it learned gender and semantic
 > roles from context alone, with no human labels.
 
+<!-- @include examples/03-embeddings.js -->
+
 ---
 
 ## 4. Attention — Context Changes Meaning
@@ -83,6 +89,8 @@ Unknown words appear greyed out.
 > `queen` (15.4%). In the battle sentence it pays most attention to `battle` (16.3%), `and` (14.2%),
 > `men` (12.7%). Same word. Same initial embedding. Completely different contextualised meaning.
 > This is what the 96 attention heads in GPT-4 are doing at every layer, for every token.
+
+<!-- @include examples/04-attention.js -->
 
 ---
 
@@ -113,6 +121,8 @@ making the peaked-vs-flat effect visible. `Reset` returns to the Hamlet quote.
 > Shakespeare's actual line from Hamlet. At high temperature it picks rare, surprising words.
 > This single knob is how you tune a model from a deterministic tool to a creative collaborator.
 
+<!-- @include examples/05-transformer-loop.js -->
+
 ---
 
 ## 6. Training — How Models Learn
@@ -131,6 +141,8 @@ then the LLM is fine-tuned to maximize that reward — making it helpful, harmle
 > **Key insight:** Real training runs this loop billions of times, across billions of parameters,
 > on thousands of GPUs. Same math, vastly bigger scale.
 
+<!-- @include examples/06-training.js -->
+
 ---
 
 ## 7. Beyond Text — CNNs, Multimodal AI, and Diffusion
@@ -148,6 +160,8 @@ developing a photograph in reverse.
 
 > **Key insight:** A deep CNN stacks many such layers. Early layers detect edges, later layers
 > detect eyes, faces, cars — complexity builds up automatically through training.
+
+<!-- @include examples/07-cnn.js -->
 
 ---
 
