@@ -8,7 +8,6 @@ This repository contains preparation materials for a talk titled **"How AI Works
 
 ## Files
 
-- `How AI Works.md` — raw bullet-point notes covering the key topics (source outline)
 - `Talk Summary.md` — structured talk summary describing each section and its interactive demo
 - `The Complete Works of William Shakespeare.txt` — reference corpus (used as example training data in demos)
 
