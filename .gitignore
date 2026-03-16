@@ -1,6 +1,4 @@
 node_modules/
 .playwright-mcp/
 .claude/
-data/
 dist/
-shakespeare.txt
