@@ -946,3 +946,154 @@
   text-align: right;
   flex-shrink: 0;
 }
+
+/* ── Transformer loop demo ───────────────────────────────────────────────── */
+
+.tl-prompt-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.tl-prompt {
+  flex: 1;
+  font-family: var(--mono-font);
+  font-size: 14pt;
+  padding: 8px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  resize: none;
+  height: 68px;
+  outline-color: #8250df;
+  line-height: 1.5;
+  color: var(--text-color);
+  background: #fff;
+}
+
+.tl-prompt-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tl-btn {
+  font-size: 13pt;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--body-font);
+  background: rgba(130,80,223,0.08);
+  border: 1px solid rgba(130,80,223,0.3);
+  color: #8250df;
+  white-space: nowrap;
+}
+.tl-btn:hover { background: rgba(130,80,223,0.15); }
+
+.tl-btn-reset {
+  background: rgba(87,96,106,0.07);
+  border-color: rgba(87,96,106,0.25);
+  color: #57606a;
+}
+.tl-btn-reset:hover { background: rgba(87,96,106,0.14); }
+
+.tl-temp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin: 10px 0 4px;
+}
+
+.tl-label {
+  font-size: 13pt;
+  font-weight: 600;
+  color: var(--muted-color);
+  flex-shrink: 0;
+}
+
+.tl-slider {
+  flex: 1;
+  accent-color: #8250df;
+  cursor: pointer;
+}
+
+.tl-temp-val {
+  font-family: var(--mono-font);
+  font-size: 14pt;
+  font-weight: 600;
+  color: #8250df;
+  width: 42px;
+  flex-shrink: 0;
+}
+
+.tl-temp-hint {
+  font-size: 12pt;
+  color: #8c959f;
+  width: 66px;
+  flex-shrink: 0;
+}
+
+.tl-context-label {
+  font-size: 13pt;
+  color: var(--muted-color);
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+.tl-context-label code { font-size: 13pt; }
+
+.tl-bars {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.tl-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tl-bar-word {
+  font-family: var(--mono-font);
+  font-size: 13pt;
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  color: #1f2328;
+}
+
+.tl-bar-track {
+  flex: 1;
+  height: 26px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tl-bar-fill {
+  height: 100%;
+  background: #8250df;
+  border-radius: 4px;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.tl-bar-pct {
+  font-family: var(--mono-font);
+  font-size: 12pt;
+  color: #57606a;
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tl-no-context {
+  font-size: 13pt;
+  color: #8c959f;
+  font-style: italic;
+  padding: 12px 0;
+}

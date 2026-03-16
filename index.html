@@ -334,39 +334,31 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 12. S5 — CODE                                                      -->
+      <!-- 12. S5 — DEMO                                                      -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s5-code">
-        <span class="tag tag-5">05 &mdash; Code</span>
+      <section id="s5-demo">
+        <span class="tag tag-5">05 &mdash; Demo</span>
+        <h2 class="c5">Temperature Controls the Distribution</h2>
         <div class="content">
-          <div class="code-split" data-src="examples/05-transformer-loop.js">
-            <div class="split-source">
-              <pre><code class="language-javascript" data-trim>// Trigrams prebuilt from Shakespeare (scripts/build-trigrams.mjs → data/trigrams.json)
-const trigrams = await fetch("data/trigrams.json").then(r => r.json());
-
-// Prompt: "to be or not to be, that is the ___"
-// Context (last 2 tokens): "is the"
-// Trigram counts ≈ transformer logits:
-//   matter:26  very:17  man:15  king:15  duke:12 ...
-
-// temperature = 0.3  (focused)
-//   P("matter") = 41.2%   → "that is the matter"  ← Hamlet's actual line ✓
-
-// temperature = 1.0  (balanced)
-//   P("matter") = 16.8%   P("king") = 15.1%
-//   → "that is the king"
-
-// temperature = 2.0  (creative)
-//   → "that is the prettiest"</code></pre>
-            </div>
-            <div class="split-result">
-              <div class="run-output"></div>
-              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+          <div class="tl-prompt-row">
+            <textarea id="tl-prompt" class="tl-prompt"
+                      oninput="updateDemo5()">to be or not to be that is the</textarea>
+            <div class="tl-prompt-btns">
+              <button class="tl-btn" onclick="demo5Generate()">+ next word</button>
+              <button class="tl-btn tl-btn-reset" onclick="demo5Reset()">&#8635; Reset</button>
             </div>
           </div>
-          <div class="insight" style="border-left-color:#8250df;">
-            One knob turns a deterministic tool into a <strong>creative collaborator</strong>.
+          <div class="tl-temp-row">
+            <span class="tl-label">Temperature</span>
+            <input id="tl-temp" type="range" min="0.1" max="2.5" step="0.05" value="1.0"
+                   class="tl-slider" oninput="demo5UpdateTemp()">
+            <span id="tl-temp-val" class="tl-temp-val">1.00</span>
+            <span id="tl-temp-hint" class="tl-temp-hint">balanced</span>
           </div>
+          <div class="tl-context-label">
+            Context: <code id="tl-context"></code> &rarr; next word probabilities
+          </div>
+          <div id="tl-bars" class="tl-bars"></div>
         </div>
       </section>
 
@@ -652,6 +644,100 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       await Promise.all([runDemo3Sim(), runDemo3Analogy()]);
     }
 
+    // ── Transformer loop demo (S5) ───────────────────────────────────────────
+    let _s5Trigrams = null;
+    const TL_DEFAULT = 'to be or not to be that is the';
+
+    async function loadDemo5() {
+      if (_s5Trigrams) return _s5Trigrams;
+      _s5Trigrams = await fetch("data/trigrams.json").then(r => r.json());
+      return _s5Trigrams;
+    }
+
+    function softmaxTemp5(counts, temp) {
+      const entries = Object.entries(counts);
+      const logits  = entries.map(([, c]) => Math.log(c + 1) / temp);
+      const max     = Math.max(...logits);
+      const exps    = logits.map(l => Math.exp(l - max));
+      const sum     = exps.reduce((a, b) => a + b, 0);
+      return entries
+        .map(([word], i) => ({ word, prob: exps[i] / sum }))
+        .sort((a, b) => b.prob - a.prob);
+    }
+
+    function sample5(probs) {
+      let r = Math.random();
+      for (const { word, prob } of probs) { r -= prob; if (r <= 0) return word; }
+      return probs[probs.length - 1].word;
+    }
+
+    function demo5Temp() {
+      return parseFloat(document.getElementById('tl-temp').value);
+    }
+
+    function demo5Context() {
+      const words = document.getElementById('tl-prompt').value.toLowerCase().match(/\b\w+\b/g) || [];
+      return words.length >= 2 ? words[words.length - 2] + ' ' + words[words.length - 1] : null;
+    }
+
+    async function updateDemo5() {
+      const model   = await loadDemo5();
+      const temp    = demo5Temp();
+      const context = demo5Context();
+      const ctxEl   = document.getElementById('tl-context');
+      const barsEl  = document.getElementById('tl-bars');
+
+      if (!context || !model[context]) {
+        ctxEl.textContent = context || '(need at least 2 words)';
+        barsEl.innerHTML  = '<div class="tl-no-context">No trigram found for this context</div>';
+        return;
+      }
+
+      ctxEl.textContent = '"' + context + '"';
+      const probs  = softmaxTemp5(model[context], temp).slice(0, 8);
+      const maxP   = probs[0].prob;
+
+      barsEl.innerHTML = probs.map(({ word, prob }) => {
+        const pct   = Math.round((prob / maxP) * 100);
+        const alpha = 0.3 + 0.7 * (prob / maxP);
+        return `<div class="tl-bar-row">
+          <span class="tl-bar-word">${word}</span>
+          <div class="tl-bar-track">
+            <div class="tl-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
+          </div>
+          <span class="tl-bar-pct">${(prob * 100).toFixed(1)}%</span>
+        </div>`;
+      }).join('');
+    }
+
+    function demo5UpdateTemp() {
+      const temp = demo5Temp();
+      document.getElementById('tl-temp-val').textContent = temp.toFixed(2);
+      document.getElementById('tl-temp-hint').textContent =
+        temp < 0.5 ? 'focused' : temp < 1.3 ? 'balanced' : 'creative';
+      updateDemo5();
+    }
+
+    async function demo5Generate() {
+      const model   = await loadDemo5();
+      const context = demo5Context();
+      if (!context || !model[context]) return;
+      const next = sample5(softmaxTemp5(model[context], demo5Temp()));
+      const el   = document.getElementById('tl-prompt');
+      el.value   = el.value.trim() + ' ' + next;
+      updateDemo5();
+    }
+
+    function demo5Reset() {
+      document.getElementById('tl-prompt').value = TL_DEFAULT;
+      updateDemo5();
+    }
+
+    async function runDemo5() {
+      await loadDemo5();
+      updateDemo5();
+    }
+
     // ── Attention demo (S4) ──────────────────────────────────────────────────
     let _attn4SelectedIdx = null;
 
@@ -914,6 +1000,7 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
       if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
       if (event.currentSlide.id === 's4-demo') { runDemo4(); return; }
+      if (event.currentSlide.id === 's5-demo') { runDemo5(); return; }
 
       const split = event.currentSlide.querySelector('.code-split');
       if (split) {
