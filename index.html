@@ -264,15 +264,15 @@
         <div class="content">
           <div class="attn4-input-row">
             <input id="attn4-input" class="attn4-input" type="text"
-                   value="king lord crown sword"
+                   value="his arms about the queen"
                    oninput="renderAttn4Chips()">
             <div class="attn4-presets-wrap">
-              <button class="attn4-preset" onclick="setAttn4('king lord crown sword')">royalty</button>
-              <button class="attn4-preset" onclick="setAttn4('love hate fear shame')">emotion</button>
-              <button class="attn4-preset" onclick="setAttn4('father mother son daughter')">family</button>
+              <button class="attn4-preset" onclick="setAttn4('his arms about the queen')">embrace</button>
+              <button class="attn4-preset" onclick="setAttn4('with arms and men in battle')">battle</button>
+              <button class="attn4-preset" onclick="setAttn4('the king and his queen')">royalty</button>
             </div>
           </div>
-          <div class="attn4-hint">Words from Shakespeare embeddings &mdash; try: king &middot; queen &middot; love &middot; death &middot; sword &middot; night &middot; father &middot; honour</div>
+          <div class="attn4-hint">1000-word Shakespeare vocab &mdash; function words (the, and, his&hellip;) may show as unknown</div>
           <div id="attn4-chips" class="attn4-chips"></div>
           <div id="attn4-label" class="attn4-from-label">&#8592; click a word above</div>
           <div id="attn4-bars" class="attn4-bars"></div>
@@ -653,9 +653,13 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
 
     // ── Attention demo (S4) ──────────────────────────────────────────────────
     let _attn4SelectedIdx = null;
+    let _s4Embeddings = null;
 
-    // Reuse _s3Embeddings (same file, already loaded by demo 3)
-    async function loadDemo4() { return loadDemo3(); }
+    async function loadDemo4() {
+      if (_s4Embeddings) return _s4Embeddings;
+      _s4Embeddings = await fetch("data/embeddings.json").then(r => r.json());
+      return _s4Embeddings;
+    }
 
     function softmax4(scores) {
       const max  = Math.max(...scores);
