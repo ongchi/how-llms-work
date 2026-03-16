@@ -1,9 +1,0 @@
-# How AI Works
-
-* **LLMs and Wrappers:** LLMs are essentially sophisticated "autocomplete" programs designed to guess the next piece of text, known as a **token**, based on previous content 1\. Most users interact with an **LLM wrapper** (like ChatGPT), which uses tricks to generate entire sentences, maintain chat history, and call external functions for real-time data like weather or stock prices 2-5.  
-* **Tokens and Embeddings:** LLMs do not read raw text; instead, they subdivide input into tokens (common words or pieces of words) 6, 7\. These tokens are mapped to **embeddings**—long lists of numbers that represent meaning in a high-dimensional space where related concepts are clustered together 8, 9\.  
-* **The Transformer Architecture:** This is the core technology behind modern LLMs 10\. It follows a three-step process: converting tokens to initial embeddings, **contextualizing** those embeddings by analyzing surrounding tokens using an **attention mechanism**, and finally calculating probabilities to predict the most likely next token 11-14.  
-* **Machine Learning Paradigms:** Models are built by filling in billions of "learnable parameters" through **training** 15, 16\.  
-* **Self-supervised learning** allows models to learn from the entire internet by practicing next-token prediction 17, 18\.  
-* **Reinforcement Learning with Human Feedback (RLHF)** is then used to "tame" the model, aligning its outputs with human preferences and safety standards 19, 20\.  
-* **Other Architectures:** While Transformers handle text, **Convolutional Neural Networks (CNNs)** are the go-to for images 21, 22\. **Multimodal AI** combines these to allow systems to process or generate both text and images, often using **diffusion models** to create sharp images from random noise 22-24.
