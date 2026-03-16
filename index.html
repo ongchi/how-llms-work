@@ -91,38 +91,6 @@
         </div>
       </section>
 
-      <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 4. S1 — CODE                                                       -->
-      <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s1-code">
-        <span class="tag tag-1">01 &mdash; Code</span>
-        <div class="content">
-          <div class="code-split" data-src="examples/01-introduction.js">
-            <div class="split-source">
-              <pre><code class="language-javascript" data-trim>// Bigram model prebuilt by scripts/build-bigrams.mjs → data/bigrams.json
-const model = await fetch("data/bigrams.json").then(r => r.json());
-
-// Greedy: always pick the most likely next character
-generate(model, "t", 40, predictGreedy)
-// → "the the the the the the the the the..."
-//   Gets stuck — always picks the single most likely character
-
-// Sample: pick proportionally to frequency
-generate(model, "t", 60, sample)
-// → "thou hast not so much brain as ear-wax, go"
-//   Learned English patterns purely from counting</code></pre>
-            </div>
-            <div class="split-result">
-              <div class="run-output"></div>
-              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
-            </div>
-          </div>
-          <div class="insight" style="border-left-color:#0969da;">
-            After 't' in Shakespeare: h 34.5% &rarr; space 22.1% &rarr; o 9.1% &nbsp;|&nbsp; After 'q': u 100% &mdash; it learned spelling rules.
-          </div>
-        </div>
-      </section>
-
       </section><!-- end S1 stack -->
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
