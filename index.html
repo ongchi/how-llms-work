@@ -256,37 +256,26 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 10. S4 — CODE                                                      -->
+      <!-- 10. S4 — DEMO                                                      -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s4-code">
-        <span class="tag tag-4">04 &mdash; Code</span>
+      <section id="s4-demo">
+        <span class="tag tag-4">04 &mdash; Demo</span>
+        <h2 class="c4">Click a Word &mdash; See What It Attends To</h2>
         <div class="content">
-          <div class="code-split" data-src="examples/04-attention.js">
-            <div class="split-source">
-              <pre><code class="language-javascript" data-trim>// Load real 50D Shakespeare embeddings (prebuilt by scripts/build-embeddings.mjs)
-const embeddings = await fetch("data/embeddings.json").then(r => r.json());
-
-// Dot-product attention: each token scores all others, softmax → weights
-function attend(sentence) {
-  const words = sentence.split(" ");
-  const vecs  = words.map(w => embeddings[w]);
-  return words.map((word, i) => {
-    const weights = softmax(vecs.map(v => dotProduct(vecs[i], v)));
-    return { word, top: topWeights(words, weights, i) };
-  });
-}
-
-attend("his arms about the queen")[1].top
-// [{to:"queen",weight:0.154},{to:"his",weight:0.155},...]
-
-attend("with arms and men in battle")[1].top
-// [{to:"battle",weight:0.163},{to:"and",weight:0.142},...]</code></pre>
-            </div>
-            <div class="split-result">
-              <div class="run-output"></div>
-              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+          <div class="attn4-input-row">
+            <input id="attn4-input" class="attn4-input" type="text"
+                   value="king lord crown sword"
+                   oninput="renderAttn4Chips()">
+            <div class="attn4-presets-wrap">
+              <button class="attn4-preset" onclick="setAttn4('king lord crown sword')">royalty</button>
+              <button class="attn4-preset" onclick="setAttn4('love hate fear shame')">emotion</button>
+              <button class="attn4-preset" onclick="setAttn4('father mother son daughter')">family</button>
             </div>
           </div>
+          <div class="attn4-hint">Words from Shakespeare embeddings &mdash; try: king &middot; queen &middot; love &middot; death &middot; sword &middot; night &middot; father &middot; honour</div>
+          <div id="attn4-chips" class="attn4-chips"></div>
+          <div id="attn4-label" class="attn4-from-label">&#8592; click a word above</div>
+          <div id="attn4-bars" class="attn4-bars"></div>
         </div>
       </section>
 
@@ -662,6 +651,91 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       await Promise.all([runDemo3Sim(), runDemo3Analogy()]);
     }
 
+    // ── Attention demo (S4) ──────────────────────────────────────────────────
+    let _attn4SelectedIdx = null;
+
+    // Reuse _s3Embeddings (same file, already loaded by demo 3)
+    async function loadDemo4() { return loadDemo3(); }
+
+    function softmax4(scores) {
+      const max  = Math.max(...scores);
+      const exps = scores.map(s => Math.exp(s - max));
+      const sum  = exps.reduce((a, b) => a + b, 0);
+      return exps.map(e => e / sum);
+    }
+
+    function dotProd4(a, b) { return a.reduce((s, v, i) => s + v * b[i], 0); }
+
+    function attn4Words() {
+      return (document.getElementById('attn4-input').value.toLowerCase().match(/\b\w+\b/g) || []);
+    }
+
+    function renderAttn4ChipHTML(words, emb, selectedIdx) {
+      return words.map((w, i) => {
+        const known = !!emb[w];
+        const sel   = i === selectedIdx ? ' attn4-chip-sel' : '';
+        const cls   = known ? `attn4-chip attn4-chip-ok${sel}` : 'attn4-chip attn4-chip-unk';
+        const click = known ? `onclick="selectAttn4Word(${i})"` : '';
+        return `<span class="${cls}" ${click}>${w}</span>`;
+      }).join('');
+    }
+
+    async function renderAttn4Chips() {
+      const emb   = await loadDemo4();
+      const words = attn4Words();
+      document.getElementById('attn4-chips').innerHTML = renderAttn4ChipHTML(words, emb, _attn4SelectedIdx);
+
+      if (_attn4SelectedIdx === null) {
+        const first = words.findIndex(w => emb[w]);
+        if (first >= 0) selectAttn4Word(first);
+      } else {
+        selectAttn4Word(_attn4SelectedIdx);
+      }
+    }
+
+    async function selectAttn4Word(idx) {
+      _attn4SelectedIdx = idx;
+      const emb   = await loadDemo4();
+      const words = attn4Words();
+
+      document.getElementById('attn4-chips').innerHTML = renderAttn4ChipHTML(words, emb, idx);
+
+      const word = words[idx];
+      if (!emb[word]) return;
+
+      const others  = words.filter((w, i) => i !== idx && emb[w]);
+      const scores  = others.map(w => dotProd4(emb[word], emb[w]));
+      const weights = softmax4(scores);
+      const pairs   = others
+        .map((w, i) => ({ word: w, weight: weights[i] }))
+        .sort((a, b) => b.weight - a.weight);
+
+      const maxW = pairs[0]?.weight || 1;
+      document.getElementById('attn4-label').textContent = `"${word}" attends to:`;
+      document.getElementById('attn4-bars').innerHTML = pairs.map(({ word: w, weight }) => {
+        const pct   = Math.round((weight / maxW) * 100);
+        const alpha = 0.25 + 0.75 * (weight / maxW);
+        return `<div class="attn4-bar-row">
+          <span class="attn4-bar-word">${w}</span>
+          <div class="attn4-bar-track">
+            <div class="attn4-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
+          </div>
+          <span class="attn4-bar-pct">${(weight * 100).toFixed(1)}%</span>
+        </div>`;
+      }).join('');
+    }
+
+    function setAttn4(text) {
+      document.getElementById('attn4-input').value = text;
+      _attn4SelectedIdx = null;
+      renderAttn4Chips();
+    }
+
+    async function runDemo4() {
+      _attn4SelectedIdx = null;
+      await renderAttn4Chips();
+    }
+
     // ── Bigram demo (S1) ─────────────────────────────────────────────────────
     let _s1Model = null;
     let _demo1Timer = null;
@@ -838,6 +912,7 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       if (event.currentSlide.id === 's1-demo') { runDemo1(); return; }
       if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
       if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
+      if (event.currentSlide.id === 's4-demo') { runDemo4(); return; }
 
       const split = event.currentSlide.querySelector('.code-split');
       if (split) {
