@@ -123,31 +123,25 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 6. S2 — CODE                                                       -->
+      <!-- 6. S2 — DEMO                                                       -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s2-code">
-        <span class="tag tag-2">02 &mdash; Code</span>
+      <section id="s2-demo">
+        <span class="tag tag-2">02 &mdash; Demo</span>
+        <h2 class="c2">Type Text, Watch Tokens</h2>
         <div class="content">
-          <div class="code-split" data-src="examples/02-tokens.js">
-            <div class="split-source">
-              <pre><code class="language-javascript" data-trim>const t = await buildTokenizer("shakespeare.txt");
-
-t.vocabSize  // 25,900
-
-t.topTokens  // [["the",30526], ["and",28567], ["i",24188], ...]
-             // Frequent words get low IDs
-
-t.encode("To be or not to be that is the question")
-// [51, 230, 36, 47, 51, 230, 83, 10, 0, 686]
-// "to"=51 and "be"=230 each appear twice → same ID both times
-
-t.decode([51, 230, 36, 47, 51, 230, 83, 10, 0, 686])
-// "to be or not to be that is the question"</code></pre>
+          <div class="tok-controls">
+            <textarea id="tok-input" class="tok-textarea" oninput="runDemo2()"
+                      placeholder="Type something…">To be or not to be, that is the question</textarea>
+            <div class="tok-presets">
+              <button class="tok-preset-btn" onclick="setTokInput('To be or not to be, that is the question')">Hamlet</button>
+              <button class="tok-preset-btn" onclick="setTokInput('The quick brown fox jumps over the lazy dog')">Pangram</button>
+              <button class="tok-preset-btn" onclick="setTokInput('supercalifragilisticexpialidocious pizza')">Unknown word</button>
             </div>
-            <div class="split-result">
-              <div class="run-output"></div>
-              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
-            </div>
+          </div>
+          <div id="tok-tokens" class="tok-tokens"></div>
+          <div class="tok-bottom">
+            <div id="tok-ids" class="tok-ids"></div>
+            <div id="tok-stats" class="tok-stats"></div>
           </div>
         </div>
       </section>
@@ -544,6 +538,58 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       }
     }
 
+    // ── Tokenizer demo (S2) ──────────────────────────────────────────────────
+    const TOK_COLORS = [
+      '#dbeafe','#dcfce7','#fef3c7','#fce7f3','#ede9fe',
+      '#e0f2fe','#fefce8','#f0fdf4','#fff7ed','#fdf4ff',
+    ];
+
+    let _s2Tokenizer = null;
+
+    async function loadDemo2() {
+      if (_s2Tokenizer) return _s2Tokenizer;
+      const { words } = await fetch("data/tokenizer.json").then(r => r.json());
+      const vocab = Object.fromEntries(words.map((w, i) => [w, i]));
+      _s2Tokenizer = { words, vocab };
+      return _s2Tokenizer;
+    }
+
+    async function runDemo2() {
+      const t = await loadDemo2();
+      const input = document.getElementById('tok-input').value;
+      const tokens = input.toLowerCase().match(/\b\w+\b/g) || [];
+
+      const tokensEl = document.getElementById('tok-tokens');
+      const idsEl    = document.getElementById('tok-ids');
+      const statsEl  = document.getElementById('tok-stats');
+
+      let known = 0, unknown = 0;
+      const chips = tokens.map(tok => {
+        const id = t.vocab[tok] !== undefined ? t.vocab[tok] : -1;
+        if (id === -1) unknown++; else known++;
+        const bg  = id === -1 ? '#fee2e2' : TOK_COLORS[id % TOK_COLORS.length];
+        const cls = id === -1 ? 'tok-chip tok-chip-unk' : 'tok-chip';
+        return `<span class="${cls}" style="background:${bg}" title="ID: ${id === -1 ? '–' : id}">${tok}</span>`;
+      });
+
+      tokensEl.innerHTML = chips.length
+        ? chips.join('')
+        : '<span style="color:#8c959f;font-style:italic;font-family:var(--body-font)">Start typing…</span>';
+
+      const ids = tokens.map(tok => t.vocab[tok] !== undefined ? t.vocab[tok] : -1);
+      idsEl.textContent = ids.length ? '[' + ids.join(', ') + ']' : '';
+
+      statsEl.textContent = tokens.length
+        ? `${tokens.length} token${tokens.length !== 1 ? 's' : ''} · ${known} known · ${unknown} unk`
+        : '';
+    }
+
+    function setTokInput(text) {
+      document.getElementById('tok-input').value = text;
+      runDemo2();
+    }
+
+    // ── Bigram demo (S1) ─────────────────────────────────────────────────────
     let _s1Model = null;
     let _demo1Timer = null;
     let _demo1Graph = null;
@@ -716,10 +762,9 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
     }
 
     Reveal.on('slidechanged', event => {
-      if (event.currentSlide.id === 's1-demo') {
-        runDemo1();
-        return;
-      }
+      if (event.currentSlide.id === 's1-demo') { runDemo1(); return; }
+      if (event.currentSlide.id === 's2-demo')  { runDemo2(); return; }
+
       const split = event.currentSlide.querySelector('.code-split');
       if (split) {
         const out = split.querySelector('.run-output');

@@ -559,3 +559,118 @@
   word-break: break-all;
   overflow-y: auto;
 }
+
+/* ── Tokenizer demo ──────────────────────────────────────────────────────── */
+
+.tok-controls {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.tok-textarea {
+  flex: 1;
+  font-family: var(--mono-font);
+  font-size: 14pt;
+  padding: 10px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  resize: none;
+  height: 76px;
+  outline-color: #1a7f37;
+  line-height: 1.4;
+  color: var(--text-color);
+  background: #fff;
+}
+
+.tok-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tok-preset-btn {
+  font-size: 12pt;
+  padding: 5px 12px;
+  background: rgba(26,127,55,0.08);
+  border: 1px solid rgba(26,127,55,0.3);
+  border-radius: 6px;
+  color: #1a7f37;
+  cursor: pointer;
+  font-family: var(--body-font);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tok-preset-btn:hover { background: rgba(26,127,55,0.15); }
+
+.tok-tokens {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-content: flex-start;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+.tok-chip {
+  font-family: var(--mono-font);
+  font-size: 14pt;
+  padding: 3px 9px;
+  border-radius: 5px;
+  color: #1f2328;
+  border: 1px solid rgba(0,0,0,0.09);
+  line-height: 1.45;
+  cursor: default;
+  transition: transform 0.1s;
+}
+.tok-chip:hover { transform: translateY(-2px); }
+
+.tok-chip-unk {
+  background: #fee2e2 !important;
+  border-color: rgba(207,34,46,0.3) !important;
+  color: #cf222e !important;
+}
+
+.tok-bottom {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.tok-ids {
+  flex: 1;
+  font-family: var(--mono-font);
+  font-size: 12pt;
+  padding: 9px 12px;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  color: #57606a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-height: 38px;
+}
+
+.tok-stats {
+  font-size: 13pt;
+  color: var(--muted-color);
+  flex-shrink: 0;
+  padding: 9px 14px;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
