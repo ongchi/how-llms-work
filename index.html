@@ -575,26 +575,24 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
     }
 
     // ── Embeddings demo (S3) ─────────────────────────────────────────────────
-    const EMB_WORDS = ['king','queen','prince','lord','lady','crown','man','woman',
-      'father','mother','son','daughter','soldier','love','hate','fear',
-      'honour','shame','mercy','death','night','day','sword','heart','blood','god','devil'];
-
     let _s3Embeddings = null;
 
     async function loadDemo3() {
       if (_s3Embeddings) return _s3Embeddings;
-      _s3Embeddings = await fetch("data/embeddings-sample.json").then(r => r.json());
+      _s3Embeddings = await fetch("data/embeddings.json").then(r => r.json());
       return _s3Embeddings;
     }
 
     function embCosSim(a, b) { return a.reduce((s, v, i) => s + v * b[i], 0); }
 
     function buildEmbSelects() {
-      const html = EMB_WORDS.map(w => `<option value="${w}">${w}</option>`).join('');
+      const words = Object.keys(_s3Embeddings).sort();
+      const html  = words.map(w => `<option value="${w}">${w}</option>`).join('');
       document.getElementById('emb-word').innerHTML = html;
       document.getElementById('emb-a').innerHTML    = html;
       document.getElementById('emb-b').innerHTML    = html;
       document.getElementById('emb-c').innerHTML    = html;
+      document.getElementById('emb-word').value = 'king';
       document.getElementById('emb-a').value = 'king';
       document.getElementById('emb-b').value = 'man';
       document.getElementById('emb-c').value = 'woman';
@@ -604,8 +602,9 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       const emb  = await loadDemo3();
       const word = document.getElementById('emb-word').value;
       const vec  = emb[word];
+      const all  = Object.keys(emb);
 
-      const sims = EMB_WORDS
+      const sims = all
         .filter(w => w !== word)
         .map(w => ({ word: w, sim: embCosSim(vec, emb[w]) }))
         .sort((a, b) => b.sim - a.sim)
@@ -613,7 +612,7 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
 
       const maxSim = sims[0].sim;
       document.getElementById('emb-bars').innerHTML = sims.map(({ word: w, sim }) => {
-        const pct  = Math.round((sim / maxSim) * 100);
+        const pct   = Math.round((sim / maxSim) * 100);
         const alpha = 0.25 + 0.75 * (sim / maxSim);
         return `<div class="emb-bar-row">
           <span class="emb-bar-word">${w}</span>
@@ -630,12 +629,13 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       const a   = document.getElementById('emb-a').value;
       const b   = document.getElementById('emb-b').value;
       const c   = document.getElementById('emb-c').value;
+      const all = Object.keys(emb);
 
       const query = emb[a].map((v, i) => v - emb[b][i] + emb[c][i]);
       const norm  = Math.sqrt(query.reduce((s, v) => s + v * v, 0));
       const qNorm = query.map(v => v / norm);
 
-      const results = EMB_WORDS
+      const results = all
         .filter(w => w !== a && w !== b && w !== c)
         .map(w => ({ word: w, sim: embCosSim(qNorm, emb[w]) }))
         .sort((x, y) => y.sim - x.sim)
@@ -647,19 +647,16 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
     }
 
     async function runDemo3() {
+      await loadDemo3();
       buildEmbSelects();
       await Promise.all([runDemo3Sim(), runDemo3Analogy()]);
     }
 
     // ── Attention demo (S4) ──────────────────────────────────────────────────
     let _attn4SelectedIdx = null;
-    let _s4Embeddings = null;
 
-    async function loadDemo4() {
-      if (_s4Embeddings) return _s4Embeddings;
-      _s4Embeddings = await fetch("data/embeddings.json").then(r => r.json());
-      return _s4Embeddings;
-    }
+    // Reuse _s3Embeddings — same file, loaded by demo 3
+    async function loadDemo4() { return loadDemo3(); }
 
     function softmax4(scores) {
       const max  = Math.max(...scores);
