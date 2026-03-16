@@ -171,32 +171,28 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 8. S3 — CODE                                                       -->
+      <!-- 8. S3 — DEMO                                                       -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s3-code">
-        <span class="tag tag-3">03 &mdash; Code</span>
+      <section id="s3-demo">
+        <span class="tag tag-3">03 &mdash; Demo</span>
+        <h2 class="c3">Words as Vectors</h2>
         <div class="content">
-          <div class="code-split" data-src="examples/03-embeddings.js">
-            <div class="split-source">
-              <pre><code class="language-javascript" data-trim>// Cosine similarity between real 50D Shakespeare embeddings
-sim("night",  "day")     // 0.752  ← always in contrast
-sim("father", "mother")  // 0.611  ← both parents
-sim("king",   "queen")   // 0.570  ← both royalty
-sim("love",   "hate")    // 0.441  ← opposites co-occur!
-sim("king",   "sword")   // 0.010  ← unrelated topics
-
-// Word arithmetic: a − b + c ≈ ?
-analogy("father", "man", "woman")
-// → [wife(0.52), daughter(0.49), mother(0.46)]
-// All female family members — no labels given
-
-analogy("king", "man", "woman")
-// → [richard(0.54), henry(0.52), queen(0.44)]
-// Shakespeare's kings + queen</code></pre>
-            </div>
-            <div class="split-result">
-              <div class="run-output"></div>
-              <button class="run-btn rerun-btn" onclick="rerunTab(this)">&#8635; Run again</button>
+          <div class="emb-sim-hdr">
+            <span class="emb-label">Word</span>
+            <select id="emb-word" class="demo-select" onchange="runDemo3Sim()"></select>
+            <span class="emb-hint">Top 8 nearest words &mdash; cosine similarity</span>
+          </div>
+          <div id="emb-bars" class="emb-bars"></div>
+          <div class="emb-analogy">
+            <span class="emb-label">Word arithmetic</span>
+            <div class="emb-analogy-row">
+              <select id="emb-a" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
+              <span class="emb-op">&minus;</span>
+              <select id="emb-b" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
+              <span class="emb-op">+</span>
+              <select id="emb-c" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
+              <span class="emb-op">&asymp;</span>
+              <div id="emb-analogy-result" class="emb-analogy-result"></div>
             </div>
           </div>
         </div>
@@ -589,6 +585,83 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
       runDemo2();
     }
 
+    // ── Embeddings demo (S3) ─────────────────────────────────────────────────
+    const EMB_WORDS = ['king','queen','prince','lord','lady','crown','man','woman',
+      'father','mother','son','daughter','soldier','love','hate','fear',
+      'honour','shame','mercy','death','night','day','sword','heart','blood','god','devil'];
+
+    let _s3Embeddings = null;
+
+    async function loadDemo3() {
+      if (_s3Embeddings) return _s3Embeddings;
+      _s3Embeddings = await fetch("data/embeddings-sample.json").then(r => r.json());
+      return _s3Embeddings;
+    }
+
+    function embCosSim(a, b) { return a.reduce((s, v, i) => s + v * b[i], 0); }
+
+    function buildEmbSelects() {
+      const html = EMB_WORDS.map(w => `<option value="${w}">${w}</option>`).join('');
+      document.getElementById('emb-word').innerHTML = html;
+      document.getElementById('emb-a').innerHTML    = html;
+      document.getElementById('emb-b').innerHTML    = html;
+      document.getElementById('emb-c').innerHTML    = html;
+      document.getElementById('emb-a').value = 'king';
+      document.getElementById('emb-b').value = 'man';
+      document.getElementById('emb-c').value = 'woman';
+    }
+
+    async function runDemo3Sim() {
+      const emb  = await loadDemo3();
+      const word = document.getElementById('emb-word').value;
+      const vec  = emb[word];
+
+      const sims = EMB_WORDS
+        .filter(w => w !== word)
+        .map(w => ({ word: w, sim: embCosSim(vec, emb[w]) }))
+        .sort((a, b) => b.sim - a.sim)
+        .slice(0, 8);
+
+      const maxSim = sims[0].sim;
+      document.getElementById('emb-bars').innerHTML = sims.map(({ word: w, sim }) => {
+        const pct  = Math.round((sim / maxSim) * 100);
+        const alpha = 0.25 + 0.75 * (sim / maxSim);
+        return `<div class="emb-bar-row">
+          <span class="emb-bar-word">${w}</span>
+          <div class="emb-bar-track">
+            <div class="emb-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
+          </div>
+          <span class="emb-bar-score">${sim.toFixed(3)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    async function runDemo3Analogy() {
+      const emb = await loadDemo3();
+      const a   = document.getElementById('emb-a').value;
+      const b   = document.getElementById('emb-b').value;
+      const c   = document.getElementById('emb-c').value;
+
+      const query = emb[a].map((v, i) => v - emb[b][i] + emb[c][i]);
+      const norm  = Math.sqrt(query.reduce((s, v) => s + v * v, 0));
+      const qNorm = query.map(v => v / norm);
+
+      const results = EMB_WORDS
+        .filter(w => w !== a && w !== b && w !== c)
+        .map(w => ({ word: w, sim: embCosSim(qNorm, emb[w]) }))
+        .sort((x, y) => y.sim - x.sim)
+        .slice(0, 3);
+
+      document.getElementById('emb-analogy-result').innerHTML = results.map((r, i) =>
+        `<span class="emb-res-chip ${i === 0 ? 'emb-res-top' : ''}">${r.word}<small>${r.sim.toFixed(2)}</small></span>`
+      ).join('');
+    }
+
+    async function runDemo3() {
+      buildEmbSelects();
+      await Promise.all([runDemo3Sim(), runDemo3Analogy()]);
+    }
+
     // ── Bigram demo (S1) ─────────────────────────────────────────────────────
     let _s1Model = null;
     let _demo1Timer = null;
@@ -763,7 +836,8 @@ const trigrams = await fetch("data/trigrams.json").then(r => r.json());
 
     Reveal.on('slidechanged', event => {
       if (event.currentSlide.id === 's1-demo') { runDemo1(); return; }
-      if (event.currentSlide.id === 's2-demo')  { runDemo2(); return; }
+      if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
+      if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
 
       const split = event.currentSlide.querySelector('.code-split');
       if (split) {
