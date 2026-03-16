@@ -9,7 +9,7 @@ This repository contains preparation materials for a talk titled **"How AI Works
 ## Files
 
 - `How AI Works.md` — raw bullet-point notes covering the key topics (source outline)
-- `Talk Summary.md` — structured talk summary with one JavaScript snippet per section
+- `Talk Summary.md` — structured talk summary describing each section and its interactive demo
 - `The Complete Works of William Shakespeare.txt` — reference corpus (used as example training data in demos)
 
 ## Talk Structure
@@ -23,7 +23,7 @@ The talk (`Talk Summary.md`) follows this progression:
 5. Full Transformer loop (logits → softmax → sampling)
 6. Training (gradient descent toy, self-supervised learning, RLHF)
 7. Beyond text (CNN convolution, multimodal, diffusion)
-8. Conclusion (summary table + developer takeaways)
+8. Conclusion (developer takeaways + credits)
 
 ## JavaScript Examples
 
@@ -89,8 +89,23 @@ The presentation uses **[reveal.js](https://revealjs.com/)** — a standard slid
 
 **Custom styles:** `revealjs-styles.css` — light GitHub theme with all custom components (tag pills, insight boxes, attention comparison, pipeline steps, layer table, overview grid, run buttons).
 
-**Slide count:** 19 slides — title, overview, 7× concept+code pairs, full-picture table, developer takeaways, closing.
+**Slide count:** 20 slides — title, 7× concept+demo pairs, training concept, beyond-text concept, developer takeaways, closing, credits.
 
 **Syntax highlighting:** highlight.js via CDN with the GitHub theme (`github.min.css`), initialized via `hljs.highlightAll()` on `Reveal.on('ready', ...)`.
 
-**Runnable examples:** The `runBtn(btn)` / `runExample()` / `_AF` (AsyncFunction) pattern executes each `examples/XX.js` file in the browser, capturing `console.log` output into the `.run-output` panel below each code block.
+**Interactive demos:** Sections 1–5 each have a live demo slide. Demos are triggered via `slidechanged` and lazy-load their data on first visit:
+
+| Section | Demo | Data |
+|---|---|---|
+| 01 | Character bigram graph + text generator | `data/bigrams.json` |
+| 02 | Live tokenizer with colour-coded chips | `data/tokenizer.json` |
+| 03 | Cosine similarity bars + word analogy | `data/embeddings.json` |
+| 04 | Click-a-word attention bars | `data/embeddings.json` (shared) |
+| 05 | Temperature slider + next-word generator | `data/trigrams.json` |
+
+## Keeping `index.html` and `Talk Summary.md` in sync
+
+These two files describe the same talk. **When you modify one, update the other:**
+
+- Changes to slide content (concept bullets, demo descriptions, section titles) → reflect in the corresponding section of `Talk Summary.md`
+- Changes to `Talk Summary.md` narrative or key insights → verify the matching slide in `index.html` is consistent
