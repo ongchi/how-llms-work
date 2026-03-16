@@ -1097,3 +1097,37 @@
   font-style: italic;
   padding: 12px 0;
 }
+
+/* ── Attributions table ──────────────────────────────────────────────────── */
+
+.attr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15pt;
+  margin-top: 8px;
+}
+
+.attr-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(208,215,222,0.7);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.attr-table td:first-child {
+  font-weight: 600;
+  color: #57606a;
+  white-space: nowrap;
+  width: 190px;
+}
+
+.attr-table td:nth-child(2) {
+  font-family: var(--mono-font);
+  color: #9a6700;
+  white-space: nowrap;
+}
+
+.attr-table td:nth-child(3) {
+  color: #57606a;
+  font-size: 13pt;
+}
