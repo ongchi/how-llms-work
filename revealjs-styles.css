@@ -52,6 +52,7 @@
 
 .reveal h1 { font-size: var(--h1-size); }
 .reveal h2 { font-size: var(--h2-size); margin-bottom: 14px; }
+.reveal h2 > .tag { display: block; }
 .reveal h3 { font-size: var(--h3-size); margin-bottom: 10px; }
 .reveal h4 { font-size: 14pt; font-weight: 600; color: var(--muted-color); margin-bottom: 8px; }
 
