@@ -336,6 +336,55 @@
   font-weight: 600;
 }
 
+/* ── Comparison table (MCP vs Skills) ───────────────────────────────────── */
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 20pt;
+  margin: 10px 0;
+}
+.compare-table thead tr { border-bottom: 2px solid var(--border-color); }
+.compare-table th {
+  text-align: left;
+  padding: 7px 12px;
+  font-weight: 700;
+  font-size: 18pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #657b83;
+}
+.compare-table th:nth-child(2) { color: #268bd2; }
+.compare-table th:nth-child(3) { color: #cb4b16; }
+.compare-table td {
+  padding: 8px 12px;
+  color: #073642;
+  border-bottom: 1px solid rgba(88,110,117,0.2);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.compare-table td:first-child {
+  font-weight: 600;
+  color: #657b83;
+  white-space: nowrap;
+  width: 120px;
+}
+
+/* ── Slide reference links ───────────────────────────────────────────────── */
+
+.slide-refs {
+  margin-top: 10px;
+  font-size: 11pt;
+  color: #93a1a1;
+  display: flex;
+  gap: 24px;
+}
+.slide-refs a {
+  color: #268bd2;
+  text-decoration: none;
+}
+.slide-refs a:hover { text-decoration: underline; }
+
 /* ── Runnable example ────────────────────────────────────────────────────── */
 
 .run-btn {

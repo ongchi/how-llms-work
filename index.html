@@ -562,11 +562,11 @@
               <li><strong>Planning</strong> &mdash; ReAct pattern: <em>Reason</em> about the goal, <em>Act</em> with a tool, <em>Observe</em> the result, repeat</li>
               <li><strong>Reasoning models</strong> (o1, o3, Claude thinking) &mdash; generate hidden chain-of-thought tokens before the final answer; better at multi-step problems, costs more tokens</li>
             </ul>
-            
+
           </div>
         </section>
 
-<section data-auto-animate>
+        <section data-auto-animate>
                     <h2><span class="tag tag-ag">08 &mdash; AI Agents</span>From Model to Agent</h2>
           <div class="content">
             <ul>
@@ -860,6 +860,51 @@
                   <span class="agent-msg">The sum of the first 5 prime numbers (2+3+5+7+11) is <strong>28</strong>.</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MCP vs Skills comparison -->
+        <section id="s8-mcp-skills">
+                    <h2><span class="tag tag-ag">08 &mdash; Tooling</span>MCP &amp; Skills</h2>
+          <div class="content">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>MCP &mdash; Model Context Protocol</th>
+                  <th>Skills</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>What</td>
+                  <td>Open standard for<br>tool &harr; model communication</td>
+                  <td>Named prompt + tool sequence</td>
+                </tr>
+                <tr>
+                  <td>Defined by</td>
+                  <td>Tool / server author</td>
+                  <td>Agent developer</td>
+                </tr>
+                <tr>
+                  <td>How</td>
+                  <td>Server exposes schemas;<br>model calls tools as structured tokens</td>
+                  <td>Command expands to a prompt<br>that drives the tool sequence</td>
+                </tr>
+                <tr>
+                  <td>Benefit</td>
+                  <td>One server,<br>any compatible model</td>
+                  <td>Capture a workflow once,<br>reuse anywhere</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="insight">
+              <strong>MCP is the plug standard; Skills are the appliances.</strong><br/>MCP defines how tools speak to models &mdash; Skills define what the model does with them.
+            </div>
+            <div class="slide-refs">
+              <span>&#128279; <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank">anthropic.com &rarr; Model Context Protocol</a></span>
+              <span>&#128279; <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" target="_blank">platform.claude.com &rarr; Agent Skills</a></span>
             </div>
           </div>
         </section>

@@ -176,6 +176,18 @@ the model and user code.
 > **Key insight:** The model never "does" anything. Your code does — based on what the model outputs.
 > Intelligence emerges from the loop.
 
+### MCP & Skills
+
+| | **MCP — Model Context Protocol** | **Skills** |
+|---|---|---|
+| **What** | Open standard for connecting models to external tool servers | Reusable prompt + tool sequence bundled into a named command |
+| **Who defines it** | Server author (database, API, file system…) | Agent / application developer |
+| **How it works** | Server advertises tool schemas; model calls them via structured tokens | Invocation expands to a full prompt that instructs the model to call the right tools in order |
+| **Benefit** | Write once, use with any compatible model or agent framework | Capture expert workflows once, reuse them anywhere |
+| **Examples** | Postgres MCP, browser MCP, GitHub MCP | `/commit`, `/review-pr`, browser automation |
+
+> **Key insight:** MCP is the plug standard; Skills are the appliances. MCP defines how tools speak to models — Skills define what the model does with them.
+
 ---
 
 ## 9. Now You Know How It Works
