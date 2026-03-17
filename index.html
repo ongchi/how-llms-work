@@ -112,15 +112,36 @@
                 <h2><span class="tag tag-2">02 &mdash; Tokens</span>How LLMs Read Text</h2>
         <div class="content">
           <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
-          <div class="two-col" style="margin-top:14px;">
-            <div class="callout-num"><span id="s2-count-tokens-1">0</span><small>tokens in Shakespeare</small></div>
-            <div class="callout-num"><span id="s2-count-types-1">0</span><small>unique token types</small></div>
-          </div>
-          <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1; margin-top:14px;">
-            <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
-            <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
-            <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
-            <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
+          <div style="display:grid; grid-template-columns:35% 65%; gap:12px; margin-top:10px; height:420px;">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="callout-num" style="flex:1; font-size:2.4em; padding:8px 14px;"><span id="s2-count-tokens-1">0</span><small style="font-size:0.32em;">tokens in Shakespeare</small></div>
+              <div class="callout-num" style="flex:1; font-size:2.4em; padding:8px 14px;"><span id="s2-count-types-1">0</span><small style="font-size:0.32em;">unique token types</small></div>
+            </div>
+            <div style="min-width:0; position:relative;">
+            <canvas data-chart="doughnut" style="width:100%; height:100%;">
+              <!--{
+                "data": {
+                  "labels": ["\"the\"", "\"and\"", "\"i\"", "\"to\"", "\"of\"", "all others"],
+                  "datasets": [{
+                    "data": [30526, 28567, 24188, 20844, 18882, 872993],
+                    "backgroundColor": ["#268bd2","#cb4b16","#859900","#6c71c4","#2aa198","#eee8d5"],
+                    "borderColor": "#fdf6e3",
+                    "borderWidth": 2
+                  }]
+                },
+                "options": {
+                  "maintainAspectRatio": false,
+                  "layout": { "padding": { "top": 36 } },
+                  "plugins": {
+                    "legend": {
+                      "position": "right",
+                      "labels": { "color": "#073642", "font": { "size": 20 }, "padding": 16 }
+                    }
+                  }
+                }
+              }-->
+            </canvas>
+            </div>
           </div>
           
         </div>
@@ -947,6 +968,42 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script>
+    Chart.register(ChartDataLabels);
+    Chart.defaults.plugins.datalabels = {
+      display: true,
+      anchor: function(ctx) {
+        var data = ctx.dataset.data;
+        var total = data.reduce(function(a, b) { return a + b; }, 0);
+        return data[ctx.dataIndex] / total > 0.05 ? 'center' : 'end';
+      },
+      align: function(ctx) {
+        var data = ctx.dataset.data;
+        var total = data.reduce(function(a, b) { return a + b; }, 0);
+        return data[ctx.dataIndex] / total > 0.05 ? 'center' : 'end';
+      },
+      offset: function(ctx) {
+        var data = ctx.dataset.data;
+        var total = data.reduce(function(a, b) { return a + b; }, 0);
+        return data[ctx.dataIndex] / total > 0.05 ? 0 : 6;
+      },
+      formatter: function(value, ctx) {
+        var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+        return (value / total * 100).toFixed(1) + '%';
+      },
+      color: '#073642',
+      font: function(ctx) {
+        var data = ctx.dataset.data;
+        var total = data.reduce(function(a, b) { return a + b; }, 0);
+        return data[ctx.dataIndex] / total > 0.05
+          ? { size: 16, weight: 'bold' }
+          : { size: 11, weight: 'bold' };
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/rajgoel/reveal.js-plugins/chart/plugin.js"></script>
 
   <!-- Reveal.js + highlight plugin (handles syntax highlighting + data-line-numbers) -->
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
@@ -962,7 +1019,7 @@
       hash: true,
       transition: 'slide',
       center: false,
-      plugins: [ RevealHighlight ],
+      plugins: [ RevealHighlight, RevealChart ],
     });
   </script>
 
