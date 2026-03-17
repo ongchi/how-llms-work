@@ -36,7 +36,19 @@
       <!-- 2. S1 — CONCEPT + CODE (vertical stack)                            -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
-      <section id="s1-concept">
+      <section id="s1-concept" data-auto-animate>
+                <h2><span class="tag tag-1">01 &mdash; Introduction</span>LLMs are Autocomplete at Scale</h2>
+        <div class="content">
+          <ul>
+            <li>An LLM does one thing: <strong>predict the next token</strong></li>
+            <li>"Given everything before, what word comes next?"</li>
+            <li>The <strong>wrapper</strong> (ChatGPT, Claude) adds system prompt, chat history, tool calls</li>
+          </ul>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-1">01 &mdash; Introduction</span>LLMs are Autocomplete at Scale</h2>
         <div class="content">
           <ul>
@@ -96,7 +108,27 @@
       <!-- 5. S2 — CONCEPT + CODE (vertical stack)                            -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
-      <section id="s2-concept">
+      <section id="s2-concept" data-auto-animate>
+                <h2><span class="tag tag-2">02 &mdash; Tokens</span>How LLMs Read Text</h2>
+        <div class="content">
+          <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
+          <div class="two-col" style="margin-top:14px;">
+            <div>
+              <div class="callout-num">996K<small>tokens in Shakespeare</small></div>
+              <div class="callout-num">25,900<small>unique token types</small></div>
+            </div>
+            <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1;">
+              <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
+              <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
+              <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
+              <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-2">02 &mdash; Tokens</span>How LLMs Read Text</h2>
         <div class="content">
           <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
@@ -149,7 +181,22 @@
       <!-- 7. S3 — CONCEPT + CODE (vertical stack)                            -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
-      <section id="s3-concept">
+      <section id="s3-concept" data-auto-animate>
+                <h2><span class="tag tag-3">03 &mdash; Embeddings</span>Meaning as Numbers</h2>
+        <div class="content">
+          <p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
+          <ul>
+            <li>Method: <strong>PPMI co-occurrence + SVD</strong> on Shakespeare</li>
+            <li>Count which words appear near each other</li>
+            <li>Weight by statistical surprise (PPMI)</li>
+            <li>Compress 1000D &rarr; 50D via truncated SVD</li>
+            <li><strong>No human labels.</strong> Pure statistics.</li>
+          </ul>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-3">03 &mdash; Embeddings</span>Meaning as Numbers</h2>
         <div class="content">
           <p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
@@ -199,7 +246,55 @@
       <!-- 9. S4 — CONCEPT + CODE (vertical stack)                            -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
-      <section id="s4-concept">
+      <section id="s4-concept" data-auto-animate>
+                <h2><span class="tag tag-4">04 &mdash; Attention</span>Context Changes Meaning</h2>
+        <div class="content">
+          <p>Static embeddings give every word one fixed vector. <strong>Attention</strong> lets each token look at all others and update its representation based on context.</p>
+          <div class="attn-compare">
+            <div class="attn-box">
+              <h4>"his <span style="color:#cf222e;">arms</span> about the queen"</h4>
+              <div class="attn-row">
+                <span class="attn-word">the</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:100%; background:#cf222e;"></div></div>
+                <span class="attn-pct">16.8%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">his</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:92%; background:#cf222e; opacity:0.7;"></div></div>
+                <span class="attn-pct">15.5%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">queen</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:92%; background:#cf222e; opacity:0.5;"></div></div>
+                <span class="attn-pct">15.4%</span>
+              </div>
+              <div class="attn-label" style="color:#cf222e;">&rarr; EMBRACE</div>
+            </div>
+            <div class="attn-box">
+              <h4>"with <span style="color:#cf222e;">arms</span> and men in battle"</h4>
+              <div class="attn-row">
+                <span class="attn-word">battle</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:100%; background:#cf222e;"></div></div>
+                <span class="attn-pct">16.3%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">and</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:87%; background:#cf222e; opacity:0.7;"></div></div>
+                <span class="attn-pct">14.2%</span>
+              </div>
+              <div class="attn-row">
+                <span class="attn-word">men</span>
+                <div class="attn-bar-wrap"><div class="attn-bar" style="width:78%; background:#cf222e; opacity:0.5;"></div></div>
+                <span class="attn-pct">12.7%</span>
+              </div>
+              <div class="attn-label" style="color:#bc4c00;">&rarr; WEAPONS</div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-4">04 &mdash; Attention</span>Context Changes Meaning</h2>
         <div class="content">
           <p>Static embeddings give every word one fixed vector. <strong>Attention</strong> lets each token look at all others and update its representation based on context.</p>
@@ -278,7 +373,52 @@
       <!-- 11. S5 — CONCEPT + CODE (vertical stack)                           -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
-      <section id="s5-concept">
+      <section id="s5-concept" data-auto-animate>
+                <h2><span class="tag tag-5">05 &mdash; The Transformer Loop</span>Putting It Together</h2>
+        <div class="content">
+          <div class="pipeline">
+            <div class="pipe-step">
+              <span class="pipe-num">1</span>
+              <span class="pipe-name">Tokenize</span>
+              <span class="pipe-desc">"to be or not to..." &rarr; [51, 230, 36, 47, ...]</span>
+              <span class="pipe-ref">&sect;2</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">2</span>
+              <span class="pipe-name">Embed</span>
+              <span class="pipe-desc">IDs &rarr; 50-dimensional vectors</span>
+              <span class="pipe-ref">&sect;3</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">3</span>
+              <span class="pipe-name">Attend &times;N</span>
+              <span class="pipe-desc">each token listens to all others</span>
+              <span class="pipe-ref">&sect;4</span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">4</span>
+              <span class="pipe-name">Logits</span>
+              <span class="pipe-desc">linear projection &rarr; raw score per vocab word</span>
+              <span class="pipe-ref"></span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">5</span>
+              <span class="pipe-name">Softmax(T)</span>
+              <span class="pipe-desc">scores &rarr; probability distribution</span>
+              <span class="pipe-ref"></span>
+            </div>
+            <div class="pipe-step">
+              <span class="pipe-num">6</span>
+              <span class="pipe-name">Sample</span>
+              <span class="pipe-desc">pick next token &rarr; go to step 1 &rarr; repeat</span>
+              <span class="pipe-ref"></span>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-5">05 &mdash; The Transformer Loop</span>Putting It Together</h2>
         <div class="content">
           <div class="pipeline">
@@ -381,7 +521,19 @@
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <!-- 14. S7 — CONCEPT                                                   -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <section id="s7-concept">
+      <section id="s7-concept" data-auto-animate>
+                <h2><span class="tag tag-7">07 &mdash; Beyond Text</span>CNNs, Multimodal &amp; Diffusion</h2>
+        <div class="content">
+          <ul>
+            <li><strong>CNNs:</strong> slide small filter kernels across pixels &mdash; detect edges &rarr; shapes &rarr; faces</li>
+            <li><strong>Multimodal</strong> (GPT-4o, Gemini, Claude): CNN vision encoder + language model</li>
+            <li><strong>Diffusion</strong> (Stable Diffusion, DALL-E): start with pure random noise, iteratively denoise &rarr; sharp image</li>
+          </ul>
+          
+        </div>
+      </section>
+
+<section data-auto-animate>
                 <h2><span class="tag tag-7">07 &mdash; Beyond Text</span>CNNs, Multimodal &amp; Diffusion</h2>
         <div class="content">
           <ul>
@@ -400,7 +552,21 @@
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section>
 
-        <section id="s8-concept">
+        <section id="s8-concept" data-auto-animate>
+                    <h2><span class="tag tag-ag">08 &mdash; AI Agents</span>From Model to Agent</h2>
+          <div class="content">
+            <ul>
+              <li>An agent is a <strong>while loop</strong> around the transformer &mdash; the model itself hasn't changed</li>
+              <li><strong>Tools</strong> &mdash; model emits structured tokens <code>{"tool":"search","args":{...}}</code> &rarr; your code executes &rarr; result injected back as tokens</li>
+              <li><strong>Memory</strong> &mdash; context window = short-term &nbsp;&middot;&nbsp; vector DB / files retrieved via RAG = long-term</li>
+              <li><strong>Planning</strong> &mdash; ReAct pattern: <em>Reason</em> about the goal, <em>Act</em> with a tool, <em>Observe</em> the result, repeat</li>
+              <li><strong>Reasoning models</strong> (o1, o3, Claude thinking) &mdash; generate hidden chain-of-thought tokens before the final answer; better at multi-step problems, costs more tokens</li>
+            </ul>
+            
+          </div>
+        </section>
+
+<section data-auto-animate>
                     <h2><span class="tag tag-ag">08 &mdash; AI Agents</span>From Model to Agent</h2>
           <div class="content">
             <ul>
