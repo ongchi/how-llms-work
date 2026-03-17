@@ -1109,6 +1109,96 @@
   padding: 12px 0;
 }
 
+/* ── Agent section colours ───────────────────────────────────────────────── */
+
+.tag-ag { background: rgba(211,54,130,0.12); color: #d33682; }
+.cag    { color: #d33682; }
+
+/* ── Agent demo ──────────────────────────────────────────────────────────── */
+
+.agent-split {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.agent-code {
+  flex: 1;
+  min-width: 0;
+}
+.agent-code > pre { margin: 0; height: 100%; box-shadow: none; }
+.agent-code > pre code { max-height: none; height: 100%; font-size: 13pt; }
+
+.agent-trace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--box-radius);
+  overflow-y: auto;
+}
+
+.agent-goal {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  background: rgba(38,139,210,0.08);
+  border: 1px solid rgba(38,139,210,0.25);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+.agent-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  animation: agent-in 0.2s ease;
+}
+
+@keyframes agent-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.agent-role {
+  font-size: 11pt;
+  font-weight: 700;
+  font-family: var(--mono-font);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.agent-msg {
+  font-size: 13pt;
+  line-height: 1.45;
+  color: #073642;
+}
+
+.agent-think { background: rgba(181,137,0,0.08); border-color: rgba(181,137,0,0.25); }
+.agent-think .agent-role { color: #b58900; }
+
+.agent-act   { background: rgba(203,75,22,0.08); border-color: rgba(203,75,22,0.25); }
+.agent-act .agent-role { color: #cb4b16; }
+.agent-act .agent-msg  { font-family: var(--mono-font); }
+
+.agent-obs   { background: rgba(88,110,117,0.08); border-color: rgba(88,110,117,0.2); }
+.agent-obs .agent-role { color: #657b83; }
+.agent-obs .agent-msg  { font-family: var(--mono-font); }
+
+.agent-answer { background: rgba(133,153,0,0.1); border-color: rgba(133,153,0,0.3); }
+.agent-answer .agent-role { color: #859900; }
+
 /* ── Attributions table ──────────────────────────────────────────────────── */
 
 .attr-table {

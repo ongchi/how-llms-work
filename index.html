@@ -408,10 +408,322 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════ -->
-      <!-- 18. S8 — TIPS                                                      -->
+      <!-- 15-21. S8 — AI AGENTS (concept + demo steps vertical stack)        -->
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <section>
+
+        <section id="s8-concept">
+          <span class="tag tag-ag">08 &mdash; AI Agents</span>
+          <h2 class="cag">From Model to Agent</h2>
+          <div class="content">
+            <ul>
+              <li>An agent is a <strong>while loop</strong> around the transformer &mdash; the model itself hasn't changed</li>
+              <li><strong>Tools</strong> &mdash; model emits structured tokens <code>{"tool":"search","args":{...}}</code> &rarr; your code executes &rarr; result injected back as tokens</li>
+              <li><strong>Memory</strong> &mdash; context window = short-term &nbsp;&middot;&nbsp; vector DB / files retrieved via RAG = long-term</li>
+              <li><strong>Planning</strong> &mdash; ReAct pattern: <em>Reason</em> about the goal, <em>Act</em> with a tool, <em>Observe</em> the result, repeat</li>
+              <li><strong>Reasoning models</strong> (o1, o3, Claude thinking) &mdash; generate hidden chain-of-thought tokens before the final answer; better at multi-step problems, costs more tokens</li>
+            </ul>
+            <div class="insight">
+              <strong>The model never &ldquo;does&rdquo; anything.</strong> Your code does &mdash; based on what the model outputs. Intelligence emerges from the loop.
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 0: initial — no steps, no line highlight -->
+        <section id="s8-demo" data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers>
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 1: Reason — lines 5,6 -->
+        <section data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="5,6">
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-1">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 2: Act — line 12 -->
+        <section data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="12">
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-1">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
+                </div>
+                <div class="agent-step agent-act" data-id="agent-step-2">
+                  <span class="agent-role">⚡ Act</span>
+                  <span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 3: Observe — lines 14,15 -->
+        <section data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="14,15">
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-1">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
+                </div>
+                <div class="agent-step agent-act" data-id="agent-step-2">
+                  <span class="agent-role">⚡ Act</span>
+                  <span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
+                </div>
+                <div class="agent-step agent-obs" data-id="agent-step-3">
+                  <span class="agent-role">📥 Observe</span>
+                  <span class="agent-msg">28</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 4: Reason again — lines 5,6 -->
+        <section data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="5,6">
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-1">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
+                </div>
+                <div class="agent-step agent-act" data-id="agent-step-2">
+                  <span class="agent-role">⚡ Act</span>
+                  <span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
+                </div>
+                <div class="agent-step agent-obs" data-id="agent-step-3">
+                  <span class="agent-role">📥 Observe</span>
+                  <span class="agent-msg">28</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-4">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The calculator returned 28. That's the final answer.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 5: Answer — lines 8,9 -->
+        <section data-auto-animate>
+          <span class="tag tag-ag">08 &mdash; Demo</span>
+          <h2 class="cag">The Agent Loop</h2>
+          <div class="content">
+            <div class="agent-split">
+              <div class="agent-code">
+                <pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="8,9">
+                  async function agent(goal) {
+                    let ctx = [{ role: 'user', content: goal }];
+
+                    while (true) {
+                      const response = await llm(ctx);
+                      const action   = parseAction(response);
+
+                      if (action.type === 'answer')
+                        return action.text;
+
+                      // run the tool your code controls
+                      const obs = await tools[action.tool](action.args);
+
+                      ctx.push({ role: 'assistant', content: response });
+                      ctx.push({ role: 'tool',      content: obs });
+                      // loop → llm sees the result and reasons again
+                    }
+                  }
+                </code></pre>
+              </div>
+              <div class="agent-trace">
+                <div class="agent-goal" data-id="agent-goal">
+                  <span class="agent-role" style="color:#268bd2">Goal</span>
+                  <span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-1">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
+                </div>
+                <div class="agent-step agent-act" data-id="agent-step-2">
+                  <span class="agent-role">⚡ Act</span>
+                  <span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
+                </div>
+                <div class="agent-step agent-obs" data-id="agent-step-3">
+                  <span class="agent-role">📥 Observe</span>
+                  <span class="agent-msg">28</span>
+                </div>
+                <div class="agent-step agent-think" data-id="agent-step-4">
+                  <span class="agent-role">🤔 Reason</span>
+                  <span class="agent-msg">The calculator returned 28. That's the final answer.</span>
+                </div>
+                <div class="agent-step agent-answer" data-id="agent-step-5">
+                  <span class="agent-role">✅ Answer</span>
+                  <span class="agent-msg">The sum of the first 5 prime numbers (2+3+5+7+11) is <strong>28</strong>.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </section><!-- end s8 stack -->
+
+      <!-- ══════════════════════════════════════════════════════════════════ -->
+      <!-- 17. S9 — TIPS                                                      -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section id="s8-tips">
-        <span class="tag tag-8">08 &mdash; Developer Takeaways</span>
+        <span class="tag tag-8">09 &mdash; Developer Takeaways</span>
         <h2 class="c8">Now You Know How It Works</h2>
         <div class="content">
           <ul>
@@ -470,11 +782,9 @@
     </div>
   </div>
 
-  <!-- highlight.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-  <!-- Reveal.js -->
+  <!-- Reveal.js + highlight plugin (handles syntax highlighting + data-line-numbers) -->
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
   <script>
     Reveal.initialize({
       width: 1280,
@@ -486,9 +796,8 @@
       hash: true,
       transition: 'slide',
       center: false,
+      plugins: [ RevealHighlight ],
     });
-
-    Reveal.on('ready', () => { hljs.highlightAll(); });
   </script>
 
   <!-- Runnable examples runtime -->

@@ -151,7 +151,34 @@ developing a photograph in reverse.
 
 ---
 
-## 8. Now You Know How It Works
+## 8. AI Agents — From Model to Agent
+
+An **agent** is a while loop around the transformer. The model itself hasn't changed —
+what's new is the harness that runs it repeatedly and routes its outputs to real actions.
+
+**Three building blocks:**
+
+- **Tools** — the model emits structured tokens (`{"tool":"search","args":{...}}`); your code
+  executes the tool and injects the result back into the context as new tokens.
+- **Memory** — the context window is short-term memory; long-term memory comes from retrieving
+  relevant documents or records into context (same RAG mechanism from §5).
+- **Planning (ReAct)** — Reason about the goal → Act with a tool → Observe the result → repeat
+  until the task is complete.
+
+**Reasoning models** (o1, o3, Claude thinking): instead of one forward pass, the model generates
+hidden chain-of-thought tokens before producing its final answer. It can self-correct and
+try multiple approaches — all via token generation. Better at multi-step problems; costs more tokens.
+
+**Demo:** Step-by-step trace of a ReAct agent solving "What is the sum of the first 5 prime numbers?"
+— reason, tool call, observe, reason, answer. Shows exactly how the loop hands off between
+the model and user code.
+
+> **Key insight:** The model never "does" anything. Your code does — based on what the model outputs.
+> Intelligence emerges from the loop.
+
+---
+
+## 9. Now You Know How It Works
 
 - **Prompt engineering** — the system prompt and conversation history are just more tokens. Context matters.
 - **Hallucinations** — the model is sampling a distribution. It predicts plausible continuations, not facts.
