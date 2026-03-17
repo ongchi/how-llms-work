@@ -66,7 +66,7 @@
       <!-- 3. S1 — DEMO                                                        -->
       <!-- ══════════════════════════════════════════════════════════════════ -->
       <section id="s1-demo">
-                <h2><span class="tag tag-1">01 &mdash; Demo</span>Character Bigram Model from 5.5M chars of Shakespeare</h2>
+                <h2><span class="tag tag-1">01 &mdash; Demo</span>Character Bigram Model from 5.5M chars of <a href="https://www.gutenberg.org/ebooks/100" target="_blank">Shakespeare</a></h2>
         <div class="content">
           <div class="demo-controls">
             <div class="demo-field">
@@ -181,13 +181,13 @@
         <div class="content">
           <p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
           <ul>
-            <li>Method: <strong>PPMI co-occurrence + SVD</strong> on Shakespeare</li>
+            <li>Method: <strong><a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank">PPMI</a> co-occurrence + <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank">SVD</a></strong> on Shakespeare</li>
             <li>Count which words appear near each other</li>
-            <li>Weight by statistical surprise (PPMI)</li>
-            <li>Compress 1000D &rarr; 50D via truncated SVD</li>
+            <li>Weight by statistical surprise (<a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank">PPMI</a>)</li>
+            <li>Compress 1000D &rarr; 50D via truncated <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank">SVD</a></li>
             <li><strong>No human labels.</strong> Pure statistics.</li>
           </ul>
-          
+
         </div>
       </section>
 
@@ -196,10 +196,10 @@
         <div class="content">
           <p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
           <ul>
-            <li>Method: <strong>PPMI co-occurrence + SVD</strong> on Shakespeare</li>
+            <li>Method: <strong><a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank">PPMI</a> co-occurrence + <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank">SVD</a></strong> on Shakespeare</li>
             <li>Count which words appear near each other</li>
-            <li>Weight by statistical surprise (PPMI)</li>
-            <li>Compress 1000D &rarr; 50D via truncated SVD</li>
+            <li>Weight by statistical surprise (<a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank">PPMI</a>)</li>
+            <li>Compress 1000D &rarr; 50D via truncated <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank">SVD</a></li>
             <li><strong>No human labels.</strong> Pure statistics.</li>
           </ul>
           <div class="insight">
@@ -392,13 +392,13 @@
             </div>
             <div class="pipe-step">
               <span class="pipe-num">4</span>
-              <span class="pipe-name">Logits</span>
+              <span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Logit" target="_blank">Logits</a></span>
               <span class="pipe-desc">linear projection &rarr; raw score per vocab word</span>
               <span class="pipe-ref"></span>
             </div>
             <div class="pipe-step">
               <span class="pipe-num">5</span>
-              <span class="pipe-name">Softmax(T)</span>
+              <span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Softmax_function" target="_blank">Softmax</a>(T)</span>
               <span class="pipe-desc">scores &rarr; probability distribution</span>
               <span class="pipe-ref"></span>
             </div>
@@ -409,7 +409,7 @@
               <span class="pipe-ref"></span>
             </div>
           </div>
-          
+
         </div>
       </section>
 
@@ -437,13 +437,13 @@
             </div>
             <div class="pipe-step">
               <span class="pipe-num">4</span>
-              <span class="pipe-name">Logits</span>
+              <span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Logit" target="_blank">Logits</a></span>
               <span class="pipe-desc">linear projection &rarr; raw score per vocab word</span>
               <span class="pipe-ref"></span>
             </div>
             <div class="pipe-step">
               <span class="pipe-num">5</span>
-              <span class="pipe-name">Softmax(T)</span>
+              <span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Softmax_function" target="_blank">Softmax</a>(T)</span>
               <span class="pipe-desc">scores &rarr; probability distribution</span>
               <span class="pipe-ref"></span>
             </div>
@@ -499,8 +499,8 @@
           <ul>
             <li>Start with <strong>random weights</strong> &rarr; make terrible predictions</li>
             <li>Measure error &rarr; compute gradient &rarr; nudge weights &rarr; repeat</li>
-            <li><strong>Self-supervised:</strong> every sentence on the internet is a training example &mdash; no labels needed</li>
-            <li><strong>RLHF:</strong> human raters score outputs &rarr; reward model &rarr; fine-tune to be helpful, harmless, honest</li>
+            <li><strong><a href="https://en.wikipedia.org/wiki/Self-supervised_learning" target="_blank">Self-supervised:</a></strong> every sentence on the internet is a training example &mdash; no labels needed</li>
+            <li><strong><a href="https://en.wikipedia.org/wiki/Reinforcement_learning_from_human_feedback" target="_blank">RLHF:</a></strong> human raters score outputs &rarr; reward model &rarr; fine-tune to be helpful, harmless, honest</li>
           </ul>
           <div class="two-col" style="margin-top:16px;">
             <div>
