@@ -102,6 +102,25 @@ The presentation uses **[reveal.js](https://revealjs.com/)** — a standard slid
 | 04 | Click-a-word attention bars | `data/embeddings.json` (shared) |
 | 05 | Temperature slider + next-word generator | `data/trigrams.json` |
 
+## Section comments in JS files
+
+Every logical section in a JS file must be wrapped with matching start and end banner comments so sections are easy to locate:
+
+```js
+// ── Section name ─────────────────────────────────────────────────────────
+// ... code ...
+// ── end Section name ─────────────────────────────────────────────────────
+```
+
+Apply this to all sections when adding or editing code in `demos.js` or any future JS file in this project.
+
+## JavaScript in index.html
+
+Do not write large blocks of JavaScript inline in `index.html`. Any non-trivial JS (more than a few lines) must go in an external `.js` file loaded via `<script src="...">`.
+
+- Demo runtime logic → `demos.js`
+- Reveal.js initialisation (small config block) → may stay inline
+
 ## Keeping `index.html` and `Talk Summary.md` in sync
 
 These two files describe the same talk. **When you modify one, update the other:**
