@@ -516,8 +516,16 @@ function rerunTab(btn) {
   runExample(btn.closest('.code-split').dataset.src, btn, out);
 }
 
+// ── S2 countUp animations ─────────────────────────────────────────────────
+function runS2CountUp() {
+  new countUp.CountUp('s2-count-tokens-1', 996, { suffix: 'K', duration: 2 }).start();
+  new countUp.CountUp('s2-count-types-1', 25900, { separator: ',', duration: 2 }).start();
+}
+// ── end S2 countUp animations ─────────────────────────────────────────────
+
 Reveal.on('slidechanged', event => {
   if (event.currentSlide.id === 's1-demo') { runDemo1(); return; }
+  if (event.currentSlide.id === 's2-concept') { runS2CountUp(); return; }
   if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
   if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
   if (event.currentSlide.id === 's4-demo') { runDemo4(); return; }

@@ -113,42 +113,16 @@
         <div class="content">
           <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
           <div class="two-col" style="margin-top:14px;">
-            <div>
-              <div class="callout-num">996K<small>tokens in Shakespeare</small></div>
-              <div class="callout-num">25,900<small>unique token types</small></div>
-            </div>
-            <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1;">
-              <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
-              <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
-              <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
-              <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
-            </div>
+            <div class="callout-num"><span id="s2-count-tokens-1">0</span><small>tokens in Shakespeare</small></div>
+            <div class="callout-num"><span id="s2-count-types-1">0</span><small>unique token types</small></div>
+          </div>
+          <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1; margin-top:14px;">
+            <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
+            <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
+            <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
+            <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
           </div>
           
-        </div>
-      </section>
-
-<section data-auto-animate>
-                <h2><span class="tag tag-2">02 &mdash; Tokens</span>How LLMs Read Text</h2>
-        <div class="content">
-          <p>LLMs never read raw characters. Text is split into <strong>tokens</strong> and each gets a numeric ID.</p>
-          <div class="two-col" style="margin-top:14px;">
-            <div>
-              <div class="callout-num">996K<small>tokens in Shakespeare</small></div>
-              <div class="callout-num">25,900<small>unique token types</small></div>
-            </div>
-            <div style="font-family:'SFMono-Regular',Consolas,monospace; font-size:13pt; line-height:2.1;">
-              <div><code>"the"</code> &rarr; ID 0 &nbsp;<span style="color:#57606a;">(30,526&times;)</span></div>
-              <div><code>"and"</code> &rarr; ID 1 &nbsp;<span style="color:#57606a;">(28,567&times;)</span></div>
-              <div><code>"i"</code> &rarr; ID 2 &nbsp;<span style="color:#57606a;">(24,188&times;)</span></div>
-              <div><code>"question"</code> &rarr; ID 686 <span class="muted">(rare)</span></div>
-            </div>
-          </div>
-          <div class="insight">
-            <code class="code-green">"To be or not to be, that is the question"</code>
-            &nbsp;&rarr;&nbsp;
-            <code class="code-white">[51, 230, 36, 47, 51, 230, 83, 10, 0, 686]</code>
-          </div>
         </div>
       </section>
 
@@ -971,6 +945,8 @@
 
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js"></script>
 
   <!-- Reveal.js + highlight plugin (handles syntax highlighting + data-line-numbers) -->
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>

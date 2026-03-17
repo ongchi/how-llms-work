@@ -210,21 +210,28 @@
 /* ── Callout number box ──────────────────────────────────────────────────── */
 
 .callout-num {
-  font-size: 2em;
-  font-weight: 700;
+  font-size: 3.6em;
+  font-weight: 800;
   color: #073642;
   background: #eee8d5;
-  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 6px 14px;
-  display: inline-block;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   margin: 3px;
 }
 .callout-num small {
-  font-size: 0.42em;
+  font-size: 0.28em;
+  font-weight: 400;
   color: #657b83;
   display: block;
+  margin-top: 4px;
 }
+#s2-count-tokens-1 { color: #268bd2; }
+#s2-count-types-1  { color: #cb4b16; }
 
 /* ── Two-column grid ─────────────────────────────────────────────────────── */
 
