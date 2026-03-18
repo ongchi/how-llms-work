@@ -1,9 +1,10 @@
 <section id="s5-concept">
   <h2>
-    <span class="tag tag-5">05 &mdash; The Transformer Loop</span>Putting It
-    Together
+    <span class="tag tag-5">05 &mdash; The Transformer Loop</span>
+    Putting It Together
   </h2>
   <div class="content">
+    <p>"to be or not to be, that is the ___"</p>
     <div class="pipeline">
       <div class="pipe-step">
         <span class="pipe-num">1</span>
@@ -11,19 +12,18 @@
         <span class="pipe-desc"
           >"to be or not to..." &rarr; [51, 230, 36, 47, ...]</span
         >
-        <span class="pipe-ref">&sect;2</span>
       </div>
       <div class="pipe-step">
         <span class="pipe-num">2</span>
-        <span class="pipe-name">Embed</span>
-        <span class="pipe-desc">IDs &rarr; 50-dimensional vectors</span>
-        <span class="pipe-ref">&sect;3</span>
+        <span class="pipe-name">Embedding</span>
+        <span class="pipe-desc">50-dimensional vectors per token</span>
       </div>
       <div class="pipe-step">
         <span class="pipe-num">3</span>
-        <span class="pipe-name">Attend &times;N</span>
-        <span class="pipe-desc">each token listens to all others</span>
-        <span class="pipe-ref">&sect;4</span>
+        <span class="pipe-name">Attention</span>
+        <span class="pipe-desc"
+          >context-aware vectors; Sliding Window Attention (SWA)</span
+        >
       </div>
       <div class="pipe-step">
         <span class="pipe-num">4</span>
@@ -33,7 +33,7 @@
           ></span
         >
         <span class="pipe-desc"
-          >linear projection &rarr; raw score per vocab word</span
+          >linear projection &rarr; raw score per vocabulary</span
         >
         <span class="pipe-ref"></span>
       </div>
@@ -57,10 +57,6 @@
         >
         <span class="pipe-ref"></span>
       </div>
-    </div>
-    <div class="insight" style="border-left-color: #8250df">
-      <strong>Temperature T</strong>: low = peaked distribution (predictable)
-      &middot; high = flat (creative)
     </div>
   </div>
 </section>
