@@ -11,10 +11,6 @@
 Modern AI (LLMs like ChatGPT, Claude, Gemini) is fundamentally a very sophisticated next-token
 predictor. Given everything said so far, what word comes next? That's it.
 
-Most people interact with an **LLM wrapper** — not the model directly.
-The wrapper adds tricks: it formats a system prompt, maintains chat history,
-and can call external tools (weather API, calculator, web search) to augment the raw model output.
-
 **Demo:** Character bigram model trained on 5.5M characters of Shakespeare.
 Pick a start character, choose sample or greedy strategy, and watch it generate text.
 An interactive graph shows the top-3 transitions from each character; click any node to start there.
@@ -82,7 +78,6 @@ Unknown words appear greyed out.
 > **Key insight:** In the embrace sentence "arms" pays most attention to `the` (16.8%), `his` (15.5%),
 > `queen` (15.4%). In the battle sentence it pays most attention to `battle` (16.3%), `and` (14.2%),
 > `men` (12.7%). Same word. Same initial embedding. Completely different contextualised meaning.
-> This is what the 96 attention heads in GPT-4 are doing at every layer, for every token.
 
 ---
 
@@ -93,7 +88,7 @@ Each of the previous sections is one stage of the same pipeline:
 ```
 "to be or not to be, that is the ___"
   → Tokenize   (section 2) → [51, 230, 36, 47, 51, 230, 83, 10, 0, ...]
-  → Embed      (section 3) → 50-dimensional vectors per token
+  → Embed      (section 3) → numerical representations as high-dimensional vectors
   → Attend     (section 4) → context-aware vectors
   → Logits                 → raw scores over the whole vocabulary
   → Softmax(T)             → probability distribution
@@ -153,44 +148,15 @@ developing a photograph in reverse.
 
 ## 8. AI Agents — From Model to Agent
 
-An **agent** is a while loop around the transformer. The model itself hasn't changed —
-what's new is the harness that runs it repeatedly and routes its outputs to real actions.
-
-**Three building blocks:**
-
-- **Tools** — the model emits structured tokens (`{"tool":"search","args":{...}}`); your code
-  executes the tool and injects the result back into the context as new tokens.
-- **Memory** — the context window is short-term memory; long-term memory comes from retrieving
-  relevant documents or records into context (same RAG mechanism from §5).
-- **Planning (ReAct)** — Reason about the goal → Act with a tool → Observe the result → repeat
-  until the task is complete.
-
-**Reasoning models** (o1, o3, Claude thinking): instead of one forward pass, the model generates
-hidden chain-of-thought tokens before producing its final answer. It can self-correct and
-try multiple approaches — all via token generation. Better at multi-step problems; costs more tokens.
+The **wrapper** (ChatGPT, Claude) adds: system prompt, system tools, memory, chat history, and more — before sending to the LLM model.
 
 **Demo:** Step-by-step trace of a ReAct agent solving "What is the sum of the first 5 prime numbers?"
 — reason, tool call, observe, reason, answer. Shows exactly how the loop hands off between
 the model and user code.
 
-> **Key insight:** The model never "does" anything. Your code does — based on what the model outputs.
-> Intelligence emerges from the loop.
-
-### MCP & Skills
-
-| | **MCP — Model Context Protocol** | **Skills** |
-|---|---|---|
-| **What** | Open standard for connecting models to external tool servers | Reusable prompt + tool sequence bundled into a named command |
-| **Who defines it** | Server author (database, API, file system…) | Agent / application developer |
-| **How it works** | Server advertises tool schemas; model calls them via structured tokens | Invocation expands to a full prompt that instructs the model to call the right tools in order |
-| **Benefit** | Write once, use with any compatible model or agent framework | Capture expert workflows once, reuse them anywhere |
-| **Examples** | Postgres MCP, browser MCP, GitHub MCP | `/commit`, `/review-pr`, browser automation |
-
-> **Key insight:** MCP is the plug standard; Skills are the appliances. MCP defines how tools speak to models — Skills define what the model does with them.
-
 ### The CLI is a Natural Agent Interface
 
-LLMs are text-in / text-out — the same primitive as stdin/stdout. This means CLI tools need zero adaptation to become agent tools:
+LLMs are text-in / text-out — the same primitive as stdin/stdout. CLI tools need zero adaptation to become agent tools:
 
 ```javascript
 const tools = {
@@ -200,9 +166,20 @@ const tools = {
 };
 ```
 
-The entire Unix toolchain — git, curl, grep, jq, docker, ffmpeg, any script you already have — is immediately usable. Composability is free: pipe output from one tool as input to the next, the same as the shell.
+Composability is free: pipe output from one tool as input to the next, the same as the shell.
 
-> **Key insight:** "If it runs in a terminal, it works as an agent tool. The shell was MCP before MCP existed."
+> **Key insight:** "If it runs in a terminal, it works as an agent tool."
+
+### MCP & Skills
+
+| | **MCP — Model Context Protocol** | **Skills** |
+|---|---|---|
+| **What** | Open standard for tool ↔ model communication | Named prompt + tool sequence |
+| **How it works** | Server advertises tool schemas; model calls them via structured tokens | Invocation expands to a full prompt that instructs the model to call the right tools in order |
+| **Benefit** | Write once, use with any compatible model or agent framework | Capture expert workflows once, reuse them anywhere |
+| **Examples** | Postgres MCP, browser MCP, GitHub MCP | `/commit`, `/review-pr`, browser automation |
+
+> **Key insight:** MCP is the plug standard; Skills are the appliances. MCP defines how tools speak to models — Skills define what the model does with them.
 
 ---
 

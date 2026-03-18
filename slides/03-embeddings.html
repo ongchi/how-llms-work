@@ -1,21 +1,19 @@
 <section id="s3-concept">
   <h2>Embeddings</h2>
   <div class="content">
-    <p>
-      Each token is mapped to a point in a 50-dimensional vector space &mdash;
-      words with similar meanings end up nearby.
-    </p>
+    Words with similar meanings end up nearby.
     <ul>
       <li>Count which words appear near each other</li>
       <li>
-        Weight by statistical surprise (<a
+        Weight by
+        <a
           href="https://en.wikipedia.org/wiki/Pointwise_mutual_information"
           target="_blank"
           >PPMI</a
-        >)
+        >
       </li>
       <li>
-        Compress 1000D &rarr; 50D via truncated
+        Compress to lower dimensions via
         <a
           href="https://en.wikipedia.org/wiki/Singular_value_decomposition"
           target="_blank"

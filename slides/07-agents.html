@@ -20,36 +20,15 @@
 <section id="s7-concept">
   <h2>AI Agents</h2>
   <div class="content">
+    The wrapper (ChatGPT, Claude) adds
     <ul>
-      <li>
-        An agent is a <strong>while loop</strong> around the transformer &mdash;
-        the model itself hasn't changed
-      </li>
-      <li>
-        <strong>Tools</strong>&mdash; model emits structured tokens
-        <code>{"tool":"search","args":{...}}</code>&rarr; your code executes
-        &rarr; result injected back as tokens
-      </li>
-      <li>
-        <strong>Memory</strong>&mdash; context window = short-term
-        &nbsp;&middot;&nbsp; vector DB / files retrieved via RAG = long-term
-      </li>
-      <li>
-        <strong>Planning</strong>&mdash; ReAct (Reasoning and Action) pattern:
-        <em>Reason</em> about the goal, <em>Act</em> with a tool,
-        <em>Observe</em> the result, repeat
-      </li>
-      <li>
-        <strong>Reasoning models</strong> (o1, o3, Claude thinking) &mdash;
-        generate hidden Chain-of-Thought (CoT) tokens before the final answer;
-        better at multi-step problems, costs more tokens
-      </li>
+      <li>system prompt</li>
+      <li>system tools</li>
+      <li>memory</li>
+      <li>chat history</li>
+      <li>...</li>
     </ul>
-    <blockquote>
-      <strong>The model never &ldquo;does&rdquo; anything.</strong>
-      Your code does &mdash; based on what the model outputs. Intelligence
-      emerges from the loop.
-    </blockquote>
+    before sending to LLM models.
   </div>
 </section>
 
@@ -369,6 +348,38 @@
   </div>
 </section>
 
+<!-- CLI as natural agent interface -->
+<section id="s7-cli">
+  <h2>The CLI is a Natural Agent Interface</h2>
+  <div class="content">
+    <ul>
+      <li><strong>LLMs are text-in / text-out</strong> &mdash; the same primitive as stdin/stdout</li>
+      <li><strong>CLI tools need zero adaptation</strong> &mdash; wrap any shell command as a tool in one line:</li>
+    </ul>
+    <pre><code class="language-javascript" data-trim>
+const tools = {
+  git_log:  () => exec('git log --oneline -10'),
+  run_test: () => exec('npm test'),
+  search:   ({ q }) => exec(`grep -r "${q}" src/`),
+};
+    </code></pre>
+    <ul>
+      <li><strong>Composability is free</strong> &mdash; pipe output from one tool as input to the next, same as the shell</li>
+    </ul>
+    <blockquote>
+      &ldquo;If it runs in a terminal, it works as an agent tool.&rdquo;
+    </blockquote>
+    <div class="slide-refs">
+      <span>&#128279;
+        <a
+          href="https://github.com/HKUDS/CLI-Anything"
+          target="_blank"
+          >github.com &rarr; HKUDS/CLI-Anything</a>
+      </span>
+    </div>
+  </div>
+</section>
+
 <!-- MCP vs Skills comparison -->
 <section id="s7-mcp-skills">
   <h2>MCP &amp; Skills</h2>
@@ -386,11 +397,6 @@
           <td>What</td>
           <td>Open standard for<br />tool &harr; model communication</td>
           <td>Named prompt + tool sequence</td>
-        </tr>
-        <tr>
-          <td>Defined by</td>
-          <td>Tool / server author</td>
-          <td>Agent developer</td>
         </tr>
         <tr>
           <td>How</td>
@@ -428,41 +434,6 @@
           href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview"
           target="_blank"
           >platform.claude.com &rarr; Agent Skills</a
-        ></span
-      >
-    </div>
-  </div>
-</section>
-
-<!-- CLI as natural agent interface -->
-<section id="s7-cli">
-  <h2>The CLI is a Natural Agent Interface</h2>
-  <div class="content">
-    <ul>
-      <li><strong>LLMs are text-in / text-out</strong> &mdash; the same primitive as stdin/stdout</li>
-      <li><strong>CLI tools need zero adaptation</strong> &mdash; wrap any shell command as a tool in one line:</li>
-    </ul>
-    <pre><code class="language-javascript" data-trim>
-const tools = {
-  git_log:  () => exec('git log --oneline -10'),
-  run_test: () => exec('npm test'),
-  search:   ({ q }) => exec(`grep -r "${q}" src/`),
-};
-    </code></pre>
-    <ul>
-      <li><strong>The whole Unix toolchain is available</strong> &mdash; git, curl, grep, jq, docker, ffmpeg, any script you already have</li>
-      <li><strong>Composability is free</strong> &mdash; pipe output from one tool as input to the next, same as the shell</li>
-    </ul>
-    <blockquote>
-      &ldquo;If it runs in a terminal, it works as an agent tool.&rdquo;
-    </blockquote>
-    <div class="slide-refs">
-      <span
-        >&#128279;
-        <a
-          href="https://github.com/HKUDS/CLI-Anything"
-          target="_blank"
-          >github.com &rarr; HKUDS/CLI-Anything</a
         ></span
       >
     </div>

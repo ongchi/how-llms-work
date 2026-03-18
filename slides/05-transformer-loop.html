@@ -1,7 +1,7 @@
 <section id="s5-concept">
   <h2>The Transformer Loop</h2>
   <div class="content">
-    <p>"to be or not to be, that is the ___"</p>
+    "to be or not to be, that is the ___"
     <div class="pipeline">
       <div class="pipe-step">
         <span class="pipe-num">1</span>
@@ -13,14 +13,16 @@
       <div class="pipe-step">
         <span class="pipe-num">2</span>
         <span class="pipe-name">Embedding</span>
-        <span class="pipe-desc">50-dimensional vectors per token</span>
+        <span class="pipe-desc">
+          numerical representations transformed into high-dimensional vectors
+        </span>
       </div>
       <div class="pipe-step">
         <span class="pipe-num">3</span>
         <span class="pipe-name">Attention</span>
-        <span class="pipe-desc"
-          >context-aware vectors; Sliding Window Attention (SWA)</span
-        >
+        <span class="pipe-desc">
+          context-aware vectors; Sliding Window Attention (SWA)
+        </span>
       </div>
       <div class="pipe-step">
         <span class="pipe-num">4</span>
@@ -49,9 +51,7 @@
       <div class="pipe-step">
         <span class="pipe-num">6</span>
         <span class="pipe-name">Sample</span>
-        <span class="pipe-desc"
-          >pick next token &rarr; go to step 1 &rarr; repeat</span
-        >
+        <span class="pipe-desc">pick next token &rarr; go to step 1</span>
         <span class="pipe-ref"></span>
       </div>
     </div>
