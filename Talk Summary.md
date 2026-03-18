@@ -188,6 +188,22 @@ the model and user code.
 
 > **Key insight:** MCP is the plug standard; Skills are the appliances. MCP defines how tools speak to models — Skills define what the model does with them.
 
+### The CLI is a Natural Agent Interface
+
+LLMs are text-in / text-out — the same primitive as stdin/stdout. This means CLI tools need zero adaptation to become agent tools:
+
+```javascript
+const tools = {
+  git_log:  () => exec('git log --oneline -10'),
+  run_test: () => exec('npm test'),
+  search:   ({ q }) => exec(`grep -r "${q}" src/`),
+};
+```
+
+The entire Unix toolchain — git, curl, grep, jq, docker, ffmpeg, any script you already have — is immediately usable. Composability is free: pipe output from one tool as input to the next, the same as the shell.
+
+> **Key insight:** "If it runs in a terminal, it works as an agent tool. The shell was MCP before MCP existed."
+
 ---
 
 ## 9. Now You Know How It Works
