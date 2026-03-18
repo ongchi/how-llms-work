@@ -193,19 +193,6 @@
 .tag-7 { background: rgba(133,153,0,0.12);   color: #859900; }
 .tag-8 { background: rgba(181,137,0,0.12);   color: #b58900; }
 
-/* ── Insight box ─────────────────────────────────────────────────────────── */
-
-.insight {
-  margin-top: 14px;
-  padding: 12px 16px;
-  background: rgba(0,0,0,0.03);
-  border-left: 3px solid #93a1a1;
-  border-radius: 0 6px 6px 0;
-  font-size: 15pt;
-  line-height: 1.6;
-  color: #657b83;
-}
-.insight strong { color: #073642; }
 
 /* ── Callout number box ──────────────────────────────────────────────────── */
 
