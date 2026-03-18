@@ -1,0 +1,108 @@
+<section id="s5-concept">
+  <h2>
+    <span class="tag tag-5">05 &mdash; The Transformer Loop</span>Putting It
+    Together
+  </h2>
+  <div class="content">
+    <div class="pipeline">
+      <div class="pipe-step">
+        <span class="pipe-num">1</span>
+        <span class="pipe-name">Tokenize</span>
+        <span class="pipe-desc"
+          >"to be or not to..." &rarr; [51, 230, 36, 47, ...]</span
+        >
+        <span class="pipe-ref">&sect;2</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">2</span>
+        <span class="pipe-name">Embed</span>
+        <span class="pipe-desc">IDs &rarr; 50-dimensional vectors</span>
+        <span class="pipe-ref">&sect;3</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">3</span>
+        <span class="pipe-name">Attend &times;N</span>
+        <span class="pipe-desc">each token listens to all others</span>
+        <span class="pipe-ref">&sect;4</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">4</span>
+        <span class="pipe-name"
+          ><a href="https://en.wikipedia.org/wiki/Logit" target="_blank"
+            >Logits</a
+          ></span
+        >
+        <span class="pipe-desc"
+          >linear projection &rarr; raw score per vocab word</span
+        >
+        <span class="pipe-ref"></span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">5</span>
+        <span class="pipe-name"
+          ><a
+            href="https://en.wikipedia.org/wiki/Softmax_function"
+            target="_blank"
+            >Softmax</a
+          >(T)</span
+        >
+        <span class="pipe-desc">scores &rarr; probability distribution</span>
+        <span class="pipe-ref"></span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">6</span>
+        <span class="pipe-name">Sample</span>
+        <span class="pipe-desc"
+          >pick next token &rarr; go to step 1 &rarr; repeat</span
+        >
+        <span class="pipe-ref"></span>
+      </div>
+    </div>
+    <div class="insight" style="border-left-color: #8250df">
+      <strong>Temperature T</strong>: low = peaked distribution (predictable)
+      &middot; high = flat (creative)
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- 12. S5 — DEMO                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="s5-demo">
+  <h2>
+    <span class="tag tag-5">05 &mdash; Demo</span>Temperature Controls the
+    Distribution
+  </h2>
+  <div class="content">
+    <div class="tl-prompt-row">
+      <textarea id="tl-prompt" class="tl-prompt" oninput="updateDemo5()">
+to be or not to be that is the</textarea
+      >
+      <div class="tl-prompt-btns">
+        <button class="tl-btn" onclick="demo5Generate()">+ next word</button>
+        <button class="tl-btn tl-btn-reset" onclick="demo5Reset()">
+          &#8635; Reset
+        </button>
+      </div>
+    </div>
+    <div class="tl-temp-row">
+      <span class="tl-label">Temperature</span>
+      <input
+        id="tl-temp"
+        type="range"
+        min="0.1"
+        max="2.5"
+        step="0.05"
+        value="1.0"
+        class="tl-slider"
+        oninput="demo5UpdateTemp()"
+      />
+      <span id="tl-temp-val" class="tl-temp-val">1.00</span>
+      <span id="tl-temp-hint" class="tl-temp-hint">balanced</span>
+    </div>
+    <div class="tl-context-label">
+      Context: <code id="tl-context"></code>&rarr; next word probabilities
+    </div>
+    <div id="tl-bars" class="tl-bars"></div>
+  </div>
+</section>

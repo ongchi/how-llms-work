@@ -1,0 +1,96 @@
+<section id="s2-concept" data-auto-animate>
+  <h2><span class="tag tag-2">02 &mdash; Tokens</span>Tokenization</h2>
+  <div class="content">
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 35% 65%;
+        gap: 12px;
+        height: 420px;
+      "
+    >
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div class="callout-num" style="flex: 1; font-size: 2.4em">
+          <span id="s2-count-tokens-1">0</span>
+          <small>tokens in Shakespeare</small>
+        </div>
+        <div class="callout-num" style="flex: 1; font-size: 2.4em">
+          <span id="s2-count-types-1">0</span>
+          <small>unique token types</small>
+        </div>
+      </div>
+      <div style="min-width: 0; position: relative">
+        <canvas data-chart="doughnut" style="width: 100%; height: 100%">
+          <!--{
+                  "data": {
+                    "labels": ["\"the\"", "\"and\"", "\"i\"", "\"to\"", "\"of\"", "all others"],
+                    "datasets": [{
+                      "data": [30526, 28567, 24188, 20844, 18882, 872993],
+                      "backgroundColor": ["#268bd2","#cb4b16","#859900","#6c71c4","#2aa198","#eee8d5"],
+                      "borderColor": "#fdf6e3",
+                      "borderWidth": 2
+                    }]
+                  },
+                  "options": {
+                    "maintainAspectRatio": false,
+                    "layout": { "padding": { "top": 36 } },
+                    "plugins": {
+                      "legend": {
+                        "position": "right",
+                        "labels": { "color": "#073642", "font": { "size": 20 }, "padding": 16 }
+                      }
+                    }
+                  }
+                }-->
+        </canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- 6. S2 — DEMO                                                       -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="s2-demo">
+  <h2>
+    <span class="tag tag-2">02 &mdash; Demo</span>
+    Type Text, Watch Tokens
+  </h2>
+  <div class="content">
+    <div class="tok-controls">
+      <textarea
+        id="tok-input"
+        class="tok-textarea"
+        oninput="runDemo2()"
+        placeholder="Type something…"
+      >
+To be or not to be, that is the question</textarea
+      >
+      <div class="tok-presets">
+        <button
+          class="tok-preset-btn"
+          onclick="setTokInput('To be or not to be, that is the question')"
+        >
+          Hamlet
+        </button>
+        <button
+          class="tok-preset-btn"
+          onclick="setTokInput('The quick brown fox jumps over the lazy dog')"
+        >
+          Pangram
+        </button>
+        <button
+          class="tok-preset-btn"
+          onclick="setTokInput('supercalifragilisticexpialidocious pizza')"
+        >
+          Unknown word
+        </button>
+      </div>
+    </div>
+    <div id="tok-tokens" class="tok-tokens"></div>
+    <div class="tok-bottom">
+      <div id="tok-ids" class="tok-ids"></div>
+      <div id="tok-stats" class="tok-stats"></div>
+    </div>
+  </div>
+</section>

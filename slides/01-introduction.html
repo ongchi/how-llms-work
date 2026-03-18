@@ -1,0 +1,98 @@
+<section id="s1-concept">
+  <h2>
+    <span class="tag tag-1">01 &mdash; Introduction</span>
+    LLMs are Autocomplete at Scale
+  </h2>
+  <div class="content">
+    <ul>
+      <li>An LLM does one thing: <strong>predict the next token</strong></li>
+      <li>"Given everything before, what word comes next?"</li>
+      <li>
+        The <strong>wrapper</strong> (ChatGPT, Claude) adds system prompt, chat
+        history, tool calls
+      </li>
+    </ul>
+    <div class="insight">
+      Even a character-level frequency table 'learns' from data. Scale to
+      billions of parameters + trillions of words = GPT-4.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- 3. S1 — DEMO                                                        -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="s1-demo">
+  <h2>
+    <span class="tag tag-1">01 &mdash; Demo</span>
+    Character Bigram Model from 5.5M chars of
+    <a href="https://www.gutenberg.org/ebooks/100" target="_blank">
+      Shakespeare
+    </a>
+  </h2>
+  <div class="content">
+    <div class="demo-controls">
+      <div class="demo-field">
+        <label for="demo1-start">Start</label>
+        <input
+          id="demo1-start"
+          type="text"
+          maxlength="1"
+          value="t"
+          class="demo-input-char"
+          oninput="runDemo1()"
+        />
+      </div>
+      <div class="demo-field demo-field-wide">
+        <label for="demo1-length">
+          Length: <span id="demo1-length-val">60</span>
+        </label>
+        <input
+          id="demo1-length"
+          type="range"
+          min="20"
+          max="200"
+          value="60"
+          oninput="
+            document.getElementById('demo1-length-val').textContent =
+              this.value;
+            runDemo1();
+          "
+        />
+      </div>
+      <div class="demo-field">
+        <label for="demo1-strategy">Strategy</label>
+        <select id="demo1-strategy" class="demo-select" onchange="runDemo1()">
+          <option value="sample">Sample</option>
+          <option value="greedy">Greedy</option>
+        </select>
+      </div>
+      <button class="run-btn" onclick="runDemo1()">&#8635; Regenerate</button>
+    </div>
+    <div class="demo-main">
+      <div class="demo-graph-wrap">
+        <div id="demo1-graph" class="demo-graph"></div>
+        <div class="graph-controls">
+          <button class="graph-ctrl-btn" onclick="demo1Zoom(1)" title="Zoom in">
+            +
+          </button>
+          <button
+            class="graph-ctrl-btn"
+            onclick="demo1Zoom(-1)"
+            title="Zoom out"
+          >
+            −
+          </button>
+          <button
+            class="graph-ctrl-btn"
+            onclick="demo1ResetCamera()"
+            title="See whole graph"
+          >
+            ⊡
+          </button>
+        </div>
+      </div>
+      <div id="demo1-output" class="demo-output"></div>
+    </div>
+  </div>
+</section>

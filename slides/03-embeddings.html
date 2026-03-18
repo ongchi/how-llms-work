@@ -1,0 +1,79 @@
+<section id="s3-concept">
+  <h2>
+    <span class="tag tag-3">03 &mdash; Embeddings</span>Meaning as Numbers
+  </h2>
+  <div class="content">
+    <p>
+      Each token is mapped to a point in a 50-dimensional vector space &mdash;
+      words with similar meanings end up nearby.
+    </p>
+    <ul>
+      <li>Count which words appear near each other</li>
+      <li>
+        Weight by statistical surprise (<a
+          href="https://en.wikipedia.org/wiki/Pointwise_mutual_information"
+          target="_blank"
+          >PPMI</a
+        >)
+      </li>
+      <li>
+        Compress 1000D &rarr; 50D via truncated
+        <a
+          href="https://en.wikipedia.org/wiki/Singular_value_decomposition"
+          target="_blank"
+          >SVD</a
+        >
+      </li>
+      <li><strong>No human labels.</strong> Pure statistics.</li>
+    </ul>
+    <div class="insight">
+      The model discovers that "king" and "queen" are related &mdash;
+      <strong>nobody told it</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- 8. S3 — DEMO                                                       -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="s3-demo">
+  <h2><span class="tag tag-3">03 &mdash; Demo</span>Words as Vectors</h2>
+  <div class="content">
+    <div class="emb-sim-hdr">
+      <span class="emb-label">Word</span>
+      <select
+        id="emb-word"
+        class="demo-select"
+        onchange="runDemo3Sim()"
+      ></select>
+      <span class="emb-hint"
+        >Top 8 nearest words &mdash; cosine similarity</span
+      >
+    </div>
+    <div id="emb-bars" class="emb-bars"></div>
+    <div class="emb-analogy">
+      <span class="emb-label">Word arithmetic</span>
+      <div class="emb-analogy-row">
+        <select
+          id="emb-a"
+          class="demo-select emb-sel"
+          onchange="runDemo3Analogy()"
+        ></select>
+        <span class="emb-op">&minus;</span>
+        <select
+          id="emb-b"
+          class="demo-select emb-sel"
+          onchange="runDemo3Analogy()"
+        ></select>
+        <span class="emb-op">+</span>
+        <select
+          id="emb-c"
+          class="demo-select emb-sel"
+          onchange="runDemo3Analogy()"
+        ></select>
+        <span class="emb-op">&asymp;</span>
+        <div id="emb-analogy-result" class="emb-analogy-result"></div>
+      </div>
+    </div>
+  </div>
+</section>

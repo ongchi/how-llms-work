@@ -114,11 +114,16 @@ Every logical section in a JS file must be wrapped with matching start and end b
 
 Apply this to all sections when adding or editing code in `demos.js` or any future JS file in this project.
 
-## JavaScript in index.html
+## JavaScript files
 
-Do not write large blocks of JavaScript inline in `index.html`. Any non-trivial JS (more than a few lines) must go in an external `.js` file loaded via `<script src="...">`.
+All external JavaScript files live in the `js/` folder:
 
-- Demo runtime logic → `demos.js`
+- `js/demos.js` — Demo runtime logic
+- `js/chart-setup.js` — Chart.js datalabels plugin registration and default config
+- `js/external.js` — Custom reveal.js plugin that loads `slides/*.html` partials via `data-external` attribute
+
+Do not write large blocks of JavaScript inline in `index.html`. Any non-trivial JS (more than a few lines) must go in `js/` and be loaded via `<script src="js/...">`.
+
 - Reveal.js initialisation (small config block) → may stay inline
 
 ## Keeping `index.html` and `Talk Summary.md` in sync

@@ -1,897 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>How LLMs Work</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How LLMs Work</title>
 
-		<!-- Reveal.js core + Solarized theme -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/solarized.css">
+    <!-- Reveal.js core + Solarized theme -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/solarized.css"
+    />
 
-		<!-- Sigma.js + Graphology for network graph -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/graphology/0.25.4/graphology.umd.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.4.0/sigma.min.js"></script>
+    <!-- Sigma.js + Graphology for network graph -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/graphology/0.25.4/graphology.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.4.0/sigma.min.js"></script>
 
-		<!-- Syntax highlighting — Solarized Light theme -->
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/solarized-light.min.css">
+    <!-- Syntax highlighting — Solarized Light theme -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/solarized-light.min.css"
+    />
 
-		<!-- Custom styles -->
-		<link rel="stylesheet" href="revealjs-styles.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="revealjs-styles.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- TITLE                                                              -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section class="title-slide" data-external="slides/00-title.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 1. TITLE                                                           -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section id="title" class="title-slide">
-					<h1>How LLMs Work</h1>
-					<p class="subtitle">From autocomplete to ChatGPT &mdash; in plain JavaScript</p>
-				</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S1 — INTRODUCTION (vertical stack)                                 -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/01-introduction.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 2. S1 — CONCEPT + CODE (vertical stack)                            -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-					<section id="s1-concept">
-						<h2><span class="tag tag-1">01 &mdash; Introduction</span>LLMs are Autocomplete at Scale</h2>
-						<div class="content">
-							<ul>
-								<li>An LLM does one thing: <strong>predict the next token</strong></li>
-								<li>"Given everything before, what word comes next?"</li>
-								<li>The <strong>wrapper</strong>
-									(ChatGPT, Claude) adds system prompt, chat history, tool calls</li>
-							</ul>
-							<div class="insight">
-								Even a character-level frequency table 'learns' from data. Scale to billions of parameters + trillions of words = GPT-4.
-							</div>
-						</div>
-					</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S2 — TOKENS (vertical stack)                                       -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/02-tokens.html"></section>
 
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<!-- 3. S1 — DEMO                                                        -->
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<section id="s1-demo">
-						<h2><span class="tag tag-1">01 &mdash; Demo</span>Character Bigram Model from 5.5M chars of <a href="https://www.gutenberg.org/ebooks/100" target="_blank">Shakespeare</a></h2>
-						<div class="content">
-							<div class="demo-controls">
-								<div class="demo-field">
-									<label for="demo1-start">Start</label>
-									<input id="demo1-start" type="text" maxlength="1" value="t" class="demo-input-char" oninput="runDemo1()">
-								</div>
-								<div class="demo-field demo-field-wide">
-									<label for="demo1-length">Length: <span id="demo1-length-val">60</span></label>
-									<input id="demo1-length" type="range" min="20" max="200" value="60" oninput="document.getElementById('demo1-length-val').textContent = this.value; runDemo1()">
-								</div>
-								<div class="demo-field">
-									<label for="demo1-strategy">Strategy</label>
-									<select id="demo1-strategy" class="demo-select" onchange="runDemo1()">
-										<option value="sample">Sample</option>
-										<option value="greedy">Greedy</option>
-									</select>
-								</div>
-								<button class="run-btn" onclick="runDemo1()">&#8635; Regenerate</button>
-							</div>
-							<div class="demo-main">
-								<div class="demo-graph-wrap">
-									<div id="demo1-graph" class="demo-graph"></div>
-									<div class="graph-controls">
-										<button class="graph-ctrl-btn" onclick="demo1Zoom(1)" title="Zoom in">+</button>
-										<button class="graph-ctrl-btn" onclick="demo1Zoom(-1)" title="Zoom out">−</button>
-										<button class="graph-ctrl-btn" onclick="demo1ResetCamera()" title="See whole graph">⊡</button>
-									</div>
-								</div>
-								<div id="demo1-output" class="demo-output"></div>
-							</div>
-						</div>
-					</section>
-				</section><!-- end S1 stack -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S3 — EMBEDDINGS (vertical stack)                                   -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/03-embeddings.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 5. S2 — CONCEPT + CODE (vertical stack)                            -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-					<section id="s2-concept" data-auto-animate>
-						<h2><span class="tag tag-2">02 &mdash; Tokens</span>Tokenization</h2>
-						<div class="content">
-							<div style="display:grid; grid-template-columns:35% 65%; gap:12px; height:420px;">
-								<div style="display:flex; flex-direction:column; gap:8px;">
-									<div class="callout-num" style="flex:1; font-size:2.4em;"><span id="s2-count-tokens-1">0</span><small>tokens in Shakespeare</small></div>
-									<div class="callout-num" style="flex:1; font-size:2.4em;"><span id="s2-count-types-1">0</span><small>unique token types</small></div>
-								</div>
-								<div style="min-width:0; position:relative;">
-									<canvas data-chart="doughnut" style="width:100%; height:100%;">
-										<!--{
-                "data": {
-                  "labels": ["\"the\"", "\"and\"", "\"i\"", "\"to\"", "\"of\"", "all others"],
-                  "datasets": [{
-                    "data": [30526, 28567, 24188, 20844, 18882, 872993],
-                    "backgroundColor": ["#268bd2","#cb4b16","#859900","#6c71c4","#2aa198","#eee8d5"],
-                    "borderColor": "#fdf6e3",
-                    "borderWidth": 2
-                  }]
-                },
-                "options": {
-                  "maintainAspectRatio": false,
-                  "layout": { "padding": { "top": 36 } },
-                  "plugins": {
-                    "legend": {
-                      "position": "right",
-                      "labels": { "color": "#073642", "font": { "size": 20 }, "padding": 16 }
-                    }
-                  }
-                }
-              }-->
-									</canvas>
-								</div>
-							</div>
-						</div>
-					</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S4 — ATTENTION (vertical stack)                                    -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/04-attention.html"></section>
 
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<!-- 6. S2 — DEMO                                                       -->
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<section id="s2-demo">
-						<h2><span class="tag tag-2">02 &mdash; Demo</span>Type Text, Watch Tokens</h2>
-						<div class="content">
-							<div class="tok-controls">
-								<textarea id="tok-input" class="tok-textarea" oninput="runDemo2()" placeholder="Type something…">To be or not to be, that is the question</textarea>
-								<div class="tok-presets">
-									<button class="tok-preset-btn" onclick="setTokInput('To be or not to be, that is the question')">Hamlet</button>
-									<button class="tok-preset-btn" onclick="setTokInput('The quick brown fox jumps over the lazy dog')">Pangram</button>
-									<button class="tok-preset-btn" onclick="setTokInput('supercalifragilisticexpialidocious pizza')">Unknown word</button>
-								</div>
-							</div>
-							<div id="tok-tokens" class="tok-tokens"></div>
-							<div class="tok-bottom">
-								<div id="tok-ids" class="tok-ids"></div>
-								<div id="tok-stats" class="tok-stats"></div>
-							</div>
-						</div>
-					</section>
-				</section><!-- end S2 stack -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S5 — TRANSFORMER LOOP (vertical stack)                             -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/05-transformer-loop.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 7. S3 — CONCEPT + CODE (vertical stack)                            -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-					<section id="s3-concept">
-						<h2><span class="tag tag-3">03 &mdash; Embeddings</span>Meaning as Numbers</h2>
-						<div class="content">
-							<p>Each token is mapped to a point in a 50-dimensional vector space &mdash; words with similar meanings end up nearby.</p>
-							<ul>
-								<li>Count which words appear near each other</li>
-								<li>Weight by statistical surprise (<a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank">PPMI</a>)</li>
-								<li>Compress 1000D &rarr; 50D via truncated <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank">SVD</a></li>
-								<li><strong>No human labels.</strong>
-								Pure statistics.</li>
-							</ul>
-							<div class="insight">
-								The model discovers that "king" and "queen" are related &mdash; <strong>nobody told it</strong>.
-							</div>
-						</div>
-					</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S6 — TRAINING                                                      -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/06-training.html"></section>
 
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<!-- 8. S3 — DEMO                                                       -->
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<section id="s3-demo">
-						<h2><span class="tag tag-3">03 &mdash; Demo</span>Words as Vectors</h2>
-						<div class="content">
-							<div class="emb-sim-hdr">
-								<span class="emb-label">Word</span>
-								<select id="emb-word" class="demo-select" onchange="runDemo3Sim()"></select>
-								<span class="emb-hint">Top 8 nearest words &mdash; cosine similarity</span>
-							</div>
-							<div id="emb-bars" class="emb-bars"></div>
-							<div class="emb-analogy">
-								<span class="emb-label">Word arithmetic</span>
-								<div class="emb-analogy-row">
-									<select id="emb-a" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
-									<span class="emb-op">&minus;</span>
-									<select id="emb-b" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
-									<span class="emb-op">+</span>
-									<select id="emb-c" class="demo-select emb-sel" onchange="runDemo3Analogy()"></select>
-									<span class="emb-op">&asymp;</span>
-									<div id="emb-analogy-result" class="emb-analogy-result"></div>
-								</div>
-							</div>
-						</div>
-					</section>
-				</section><!-- end S3 stack -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S7 — BEYOND TEXT (vertical stack)                                  -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/07-beyond-text.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 9. S4 — CONCEPT + CODE (vertical stack)                            -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-					<section id="s4-concept">
-						<h2><span class="tag tag-4">04 &mdash; Attention</span>Context Changes Meaning</h2>
-						<div class="content">
-							<p>Static embeddings give every word one fixed vector.<br><strong>Attention</strong>
-								lets each token look at all others and update its representation based on context.</p>
-							<div class="attn-compare">
-								<div class="attn-box">
-									<h4>"his <span style="color:#cf222e;">arms</span>
-										about the queen"</h4>
-									<div class="attn-row">
-										<span class="attn-word">the</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:100%; background:#cf222e;"></div></div>
-										<span class="attn-pct">16.8%</span>
-									</div>
-									<div class="attn-row">
-										<span class="attn-word">his</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:92%; background:#cf222e; opacity:0.7;"></div></div>
-										<span class="attn-pct">15.5%</span>
-									</div>
-									<div class="attn-row">
-										<span class="attn-word">queen</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:92%; background:#cf222e; opacity:0.5;"></div></div>
-										<span class="attn-pct">15.4%</span>
-									</div>
-									<div class="attn-label" style="color:#cf222e;">&rarr; EMBRACE</div>
-								</div>
-								<div class="attn-box">
-									<h4>"with <span style="color:#cf222e;">arms</span>
-										and men in battle"</h4>
-									<div class="attn-row">
-										<span class="attn-word">battle</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:100%; background:#cf222e;"></div></div>
-										<span class="attn-pct">16.3%</span>
-									</div>
-									<div class="attn-row">
-										<span class="attn-word">and</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:87%; background:#cf222e; opacity:0.7;"></div></div>
-										<span class="attn-pct">14.2%</span>
-									</div>
-									<div class="attn-row">
-										<span class="attn-word">men</span>
-										<div class="attn-bar-wrap"><div class="attn-bar" style="width:78%; background:#cf222e; opacity:0.5;"></div></div>
-										<span class="attn-pct">12.7%</span>
-									</div>
-									<div class="attn-label" style="color:#bc4c00;">&rarr; WEAPONS</div>
-								</div>
-							</div>
-							<div class="insight">
-								Same word. Same initial embedding. <strong>Completely different contextualised meaning.</strong>
-								GPT-4 has 96 attention heads doing this at every layer, for every token.
-							</div>
-						</div>
-					</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S8 — AI AGENTS (vertical stack)                                    -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/08-agents.html"></section>
 
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<!-- 10. S4 — DEMO                                                      -->
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<section id="s4-demo">
-						<h2><span class="tag tag-4">04 &mdash; Demo</span>Click a Word &mdash; See What It Attends To</h2>
-						<div class="content">
-							<div class="attn4-input-row">
-								<input id="attn4-input" class="attn4-input" type="text" value="his arms about the queen" oninput="renderAttn4Chips()">
-								<div class="attn4-presets-wrap">
-									<button class="attn4-preset" onclick="setAttn4('his arms about the queen')">embrace</button>
-									<button class="attn4-preset" onclick="setAttn4('with arms and men in battle')">battle</button>
-									<button class="attn4-preset" onclick="setAttn4('the king and his queen')">royalty</button>
-								</div>
-							</div>
-							<div class="attn4-hint">1000-word Shakespeare vocab &mdash; function words (the, and, his&hellip;) may show as unknown</div>
-							<div id="attn4-chips" class="attn4-chips"></div>
-							<div id="attn4-label" class="attn4-from-label">&#8592; click a word above</div>
-							<div id="attn4-bars" class="attn4-bars"></div>
-						</div>
-					</section>
-				</section><!-- end S4 stack -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S9 — TIPS                                                          -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/09-tips.html"></section>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 11. S5 — CONCEPT + CODE (vertical stack)                           -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-					<section id="s5-concept">
-						<h2><span class="tag tag-5">05 &mdash; The Transformer Loop</span>Putting It Together</h2>
-						<div class="content">
-							<div class="pipeline">
-								<div class="pipe-step">
-									<span class="pipe-num">1</span>
-									<span class="pipe-name">Tokenize</span>
-									<span class="pipe-desc">"to be or not to..." &rarr; [51, 230, 36, 47, ...]</span>
-									<span class="pipe-ref">&sect;2</span>
-								</div>
-								<div class="pipe-step">
-									<span class="pipe-num">2</span>
-									<span class="pipe-name">Embed</span>
-									<span class="pipe-desc">IDs &rarr; 50-dimensional vectors</span>
-									<span class="pipe-ref">&sect;3</span>
-								</div>
-								<div class="pipe-step">
-									<span class="pipe-num">3</span>
-									<span class="pipe-name">Attend &times;N</span>
-									<span class="pipe-desc">each token listens to all others</span>
-									<span class="pipe-ref">&sect;4</span>
-								</div>
-								<div class="pipe-step">
-									<span class="pipe-num">4</span>
-									<span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Logit" target="_blank">Logits</a></span>
-									<span class="pipe-desc">linear projection &rarr; raw score per vocab word</span>
-									<span class="pipe-ref"></span>
-								</div>
-								<div class="pipe-step">
-									<span class="pipe-num">5</span>
-									<span class="pipe-name"><a href="https://en.wikipedia.org/wiki/Softmax_function" target="_blank">Softmax</a>(T)</span>
-									<span class="pipe-desc">scores &rarr; probability distribution</span>
-									<span class="pipe-ref"></span>
-								</div>
-								<div class="pipe-step">
-									<span class="pipe-num">6</span>
-									<span class="pipe-name">Sample</span>
-									<span class="pipe-desc">pick next token &rarr; go to step 1 &rarr; repeat</span>
-									<span class="pipe-ref"></span>
-								</div>
-							</div>
-							<div class="insight" style="border-left-color:#8250df;">
-								<strong>Temperature T</strong>: low = peaked distribution (predictable) &middot; high = flat (creative)
-							</div>
-						</div>
-					</section>
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- S10 - MOMO — VIBE CODING MEME                                      -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <section data-external="slides/10-momo.html"></section>
+      </div>
+    </div>
 
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<!-- 12. S5 — DEMO                                                      -->
-					<!-- ══════════════════════════════════════════════════════════════════ -->
-					<section id="s5-demo">
-						<h2><span class="tag tag-5">05 &mdash; Demo</span>Temperature Controls the Distribution</h2>
-						<div class="content">
-							<div class="tl-prompt-row">
-								<textarea id="tl-prompt" class="tl-prompt" oninput="updateDemo5()">to be or not to be that is the</textarea>
-								<div class="tl-prompt-btns">
-									<button class="tl-btn" onclick="demo5Generate()">+ next word</button>
-									<button class="tl-btn tl-btn-reset" onclick="demo5Reset()">&#8635; Reset</button>
-								</div>
-							</div>
-							<div class="tl-temp-row">
-								<span class="tl-label">Temperature</span>
-								<input id="tl-temp" type="range" min="0.1" max="2.5" step="0.05" value="1.0" class="tl-slider" oninput="demo5UpdateTemp()">
-								<span id="tl-temp-val" class="tl-temp-val">1.00</span>
-								<span id="tl-temp-hint" class="tl-temp-hint">balanced</span>
-							</div>
-							<div class="tl-context-label">
-								Context: <code id="tl-context"></code>&rarr; next word probabilities
-							</div>
-							<div id="tl-bars" class="tl-bars"></div>
-						</div>
-					</section>
-				</section><!-- end S5 stack -->
+    <script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="js/chart-setup.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/rajgoel/reveal.js-plugins/chart/plugin.js"></script>
+    <script src="js/external.js"></script>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 13. S6 — CONCEPT                                                   -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section id="s6-concept">
-					<h2><span class="tag tag-6">06 &mdash; Training</span>How Models Learn</h2>
-					<div class="content">
-						<ul>
-							<li>Start with <strong>random weights</strong>&rarr; make terrible predictions</li>
-							<li>Measure error &rarr; compute gradient &rarr; nudge weights &rarr; repeat</li>
-							<li><strong><a href="https://en.wikipedia.org/wiki/Self-supervised_learning" target="_blank">Self-supervised:</a></strong>
-							every sentence on the internet is a training example &mdash; no labels needed</li>
-							<li><strong><a href="https://en.wikipedia.org/wiki/Reinforcement_learning_from_human_feedback" target="_blank">RLHF:</a></strong>
-							human raters score outputs &rarr; reward model &rarr; fine-tune to be helpful, harmless, honest</li>
-						</ul>
-						<div class="two-col" style="margin-top:16px;">
-							<div>
-								<div class="callout-num">~1T<small>tokens for GPT-3</small></div>
-							</div>
-							<div>
-								<div class="callout-num">175B<small>parameters (GPT-3)</small></div>
-							</div>
-						</div>
-					</div>
-				</section>
+    <!-- Reveal.js + highlight plugin (handles syntax highlighting + data-line-numbers) -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+    <script>
+      Reveal.initialize({
+        width: 1280,
+        height: 720,
+        margin: 0.04,
+        controls: true,
+        progress: true,
+        slideNumber: "c/t",
+        hash: true,
+        transition: "slide",
+        center: false,
+        plugins: [RevealHighlight, RevealChart, RevealExternal],
+      });
+    </script>
 
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 14. S7 — CONCEPT (vertical stack)                                  -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-
-					<section id="s7-concept">
-						<h2><span class="tag tag-7">07 &mdash; Beyond Text</span>Convolutional Neural Networks (CNNs)</h2>
-						<div class="content">
-							<figure style="text-align:center;">
-								<img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Typical_cnn.png" alt="Typical CNN architecture" style="width:100%; max-height:340px; object-fit:contain; border-radius:6px;">
-								<figcaption style="font-size:0.45em; color:#666;">By Aphex34 &mdash; Own work, CC BY-SA 4.0, <a href="https://commons.wikimedia.org/w/index.php?curid=45679374" target="_blank">Wikimedia Commons</a></figcaption>
-							</figure>
-						</div>
-					</section>
-
-					<section id="s7-diffusion">
-						<h2><span class="tag tag-7">07 &mdash; Beyond Text</span>Diffusion Models (Stable Diffusion, DALL-E...)</h2>
-						<div class="content">
-							<figure style="text-align:center;">
-								<img src="https://upload.wikimedia.org/wikipedia/commons/9/99/X-Y_plot_of_algorithmically-generated_AI_art_of_European-style_castle_in_Japan_demonstrating_DDIM_diffusion_steps.png" alt="DDIM diffusion steps visualisation" style="width:100%; max-height:460px; object-fit:contain; border-radius:6px;">
-								<figcaption style="font-size:0.45em; color:#666;">By Benlisquare &mdash; Own work, CC BY-SA 4.0, <a href="https://commons.wikimedia.org/w/index.php?curid=124800742" target="_blank">Wikimedia Commons</a></figcaption>
-							</figure>
-						</div>
-					</section>
-				</section>
-
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 15-21. S8 — AI AGENTS (concept + demo steps vertical stack)        -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section>
-
-					<section id="s8-concept">
-						<h2><span class="tag tag-ag">08 &mdash; AI Agents</span>From Model to Agent</h2>
-						<div class="content">
-							<ul>
-								<li>An agent is a <strong>while loop</strong>
-									around the transformer &mdash; the model itself hasn't changed</li>
-								<li><strong>Tools</strong>&mdash; model emits structured tokens <code>{"tool":"search","args":{...}}</code>&rarr; your code executes &rarr; result injected back as tokens</li>
-								<li><strong>Memory</strong>&mdash; context window = short-term &nbsp;&middot;&nbsp; vector DB / files retrieved via RAG = long-term</li>
-								<li><strong>Planning</strong>&mdash; ReAct pattern: <em>Reason</em>
-								about the goal, <em>Act</em>
-								with a tool, <em>Observe</em>
-								the result, repeat</li>
-								<li><strong>Reasoning models</strong>
-								(o1, o3, Claude thinking) &mdash; generate hidden chain-of-thought tokens before the final answer; better at multi-step problems, costs more tokens</li>
-							</ul>
-							<div class="insight">
-								<strong>The model never &ldquo;does&rdquo; anything.</strong>
-								Your code does &mdash; based on what the model outputs. Intelligence emerges from the loop.
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 0: initial — no steps, no line highlight -->
-					<section id="s8-demo" data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers>
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 1: Reason — lines 5,6 -->
-					<section data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="5,6">
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-1">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 2: Act — line 12 -->
-					<section data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="12">
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-1">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
-									</div>
-									<div class="agent-step agent-act" data-id="agent-step-2">
-										<span class="agent-role">⚡ Act</span>
-										<span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 3: Observe — lines 14,15 -->
-					<section data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="14,15">
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-1">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
-									</div>
-									<div class="agent-step agent-act" data-id="agent-step-2">
-										<span class="agent-role">⚡ Act</span>
-										<span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
-									</div>
-									<div class="agent-step agent-obs" data-id="agent-step-3">
-										<span class="agent-role">📥 Observe</span>
-										<span class="agent-msg">28</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 4: Reason again — lines 5,6 -->
-					<section data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="5,6">
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-1">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
-									</div>
-									<div class="agent-step agent-act" data-id="agent-step-2">
-										<span class="agent-role">⚡ Act</span>
-										<span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
-									</div>
-									<div class="agent-step agent-obs" data-id="agent-step-3">
-										<span class="agent-role">📥 Observe</span>
-										<span class="agent-msg">28</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-4">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The calculator returned 28. That's the final answer.</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- Step 5: Answer — lines 8,9 -->
-					<section data-auto-animate>
-						<h2><span class="tag tag-ag">08 &mdash; Demo</span>The Agent Loop</h2>
-						<div class="content">
-							<div class="agent-split">
-								<div class="agent-code">
-									<pre data-id="agent-pre"><code class="language-javascript" data-trim data-line-numbers="8,9">
-                  async function agent(goal) {
-                    let ctx = [{ role: 'user', content: goal }];
-
-                    while (true) {
-                      const response = await llm(ctx);
-                      const action   = parseAction(response);
-
-                      if (action.type === 'answer')
-                        return action.text;
-
-                      // run the tool your code controls
-                      const obs = await tools[action.tool](action.args);
-
-                      ctx.push({ role: 'assistant', content: response });
-                      ctx.push({ role: 'tool',      content: obs });
-                      // loop → llm sees the result and reasons again
-                    }
-                  }
-                </code></pre>
-								</div>
-								<div class="agent-trace">
-									<div class="agent-goal" data-id="agent-goal">
-										<span class="agent-role" style="color:#268bd2">Goal</span>
-										<span class="agent-msg">What is the sum of the first 5 prime numbers?</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-1">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The first 5 primes are 2, 3, 5, 7, 11. I'll use the calculator to sum them.</span>
-									</div>
-									<div class="agent-step agent-act" data-id="agent-step-2">
-										<span class="agent-role">⚡ Act</span>
-										<span class="agent-msg">calculate("2 + 3 + 5 + 7 + 11")</span>
-									</div>
-									<div class="agent-step agent-obs" data-id="agent-step-3">
-										<span class="agent-role">📥 Observe</span>
-										<span class="agent-msg">28</span>
-									</div>
-									<div class="agent-step agent-think" data-id="agent-step-4">
-										<span class="agent-role">🤔 Reason</span>
-										<span class="agent-msg">The calculator returned 28. That's the final answer.</span>
-									</div>
-									<div class="agent-step agent-answer" data-id="agent-step-5">
-										<span class="agent-role">✅ Answer</span>
-										<span class="agent-msg">The sum of the first 5 prime numbers (2+3+5+7+11) is <strong>28</strong>.</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<!-- MCP vs Skills comparison -->
-					<section id="s8-mcp-skills">
-						<h2><span class="tag tag-ag">08 &mdash; Tooling</span>MCP &amp; Skills</h2>
-						<div class="content">
-							<table class="compare-table">
-								<thead>
-									<tr>
-										<th></th>
-										<th>MCP &mdash; Model Context Protocol</th>
-										<th>Skills</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>What</td>
-										<td>Open standard for<br>tool &harr; model communication</td>
-										<td>Named prompt + tool sequence</td>
-									</tr>
-									<tr>
-										<td>Defined by</td>
-										<td>Tool / server author</td>
-										<td>Agent developer</td>
-									</tr>
-									<tr>
-										<td>How</td>
-										<td>Server exposes schemas;<br>model calls tools as structured tokens</td>
-										<td>Command expands to a prompt<br>that drives the tool sequence</td>
-									</tr>
-									<tr>
-										<td>Benefit</td>
-										<td>One server,<br>any compatible model</td>
-										<td>Capture a workflow once,<br>reuse anywhere</td>
-									</tr>
-								</tbody>
-							</table>
-							<div class="insight">
-								<strong>MCP is the plug standard; Skills are the appliances.</strong><br>MCP defines how tools speak to models &mdash; Skills define what the model does with them.
-							</div>
-							<div class="slide-refs">
-								<span>&#128279; <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank">anthropic.com &rarr; Model Context Protocol</a></span>
-								<span>&#128279; <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" target="_blank">platform.claude.com &rarr; Agent Skills</a></span>
-							</div>
-						</div>
-					</section>
-				</section><!-- end s8 stack -->
-
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 17. S9 — TIPS                                                      -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section id="s8-tips">
-					<h2><span class="tag tag-8">09 &mdash; Tips</span>Now You Know How It Works</h2>
-					<div class="content">
-						<ul>
-							<li><strong>Hallucinations</strong></li>
-							<li>
-								<strong>Context management</strong>
-								<ul>
-									<li>Prompt</li>
-									<li>Retrieval-Augmented Generation (RAG)</li>
-									<li>Memory</li>
-									<li>...</li>
-								</ul>
-							</li>
-							<li><strong>Tool calling</strong></li>
-						</ul>
-					</div>
-				</section>
-
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<!-- 18. MOMO — VIBE CODING MEME                                        -->
-				<!-- ══════════════════════════════════════════════════════════════════ -->
-				<section id="momo">
-					<div style="display:flex; align-items:center; justify-content:center; height:100%;">
-						<!-- Meme card -->
-						<div style="display:flex; flex-direction:row; align-items:center; background:#fff; border:3px solid #111; border-radius:4px; padding:28px 32px; gap:36px; max-width:780px;">
-							<!-- Left: text -->
-							<div style="flex:1; display:flex; flex-direction:column; gap:10px; text-align:left; color:#111;">
-								<span><strong>This is Momo.</strong></span>
-								<span style="line-height:1.5;">Momo walked across a keyboard.<br>Momo got kibble.</span>
-								<span style="line-height:1.5;">Momo doesn&rsquo;t know what vibe coding is.<br>Momo doesn&rsquo;t care.</span>
-								<span style="">Momo is smart.</span>
-								<span><strong>Be like Momo.</strong></span>
-								<span style="color:#999;">
-									<small><a href="https://www.calebleak.com/posts/dog-game/" target="_blank" style="color:#999;">I Taught My Dog to Vibe Code Games</a></small>
-								</span>
-							</div>
-							<!-- Right: stickman with dog head -->
-							<svg width="120" height="215" viewBox="245 115 195 340" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-								<!-- Stickman body -->
-								<line x1="340" y1="240" x2="340" y2="360" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<line x1="340" y1="265" x2="290" y2="310" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<line x1="340" y1="265" x2="390" y2="310" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<line x1="340" y1="360" x2="300" y2="440" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<line x1="340" y1="360" x2="380" y2="440" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<line x1="340" y1="220" x2="340" y2="242" style="fill:none;stroke:#111;stroke-width:6px;stroke-linecap:round;"/>
-								<!-- Dog head -->
-								<ellipse cx="295" cy="172" rx="22" ry="38" transform="rotate(-15 295 172)" style="fill:rgb(184,144,74);stroke:rgb(139,99,64);stroke-width:1.5px;"/>
-								<ellipse cx="385" cy="172" rx="22" ry="38" transform="rotate(15 385 172)" style="fill:rgb(184,144,74);stroke:rgb(139,99,64);stroke-width:1.5px;"/>
-								<circle cx="340" cy="175" r="60" style="fill:rgb(200,162,106);stroke:rgb(139,99,64);stroke-width:1.5px;"/>
-								<ellipse cx="340" cy="195" rx="26" ry="18" style="fill:rgb(184,144,74);stroke:rgb(139,99,64);stroke-width:1.5px;"/>
-								<ellipse cx="340" cy="186" rx="11" ry="7" style="fill:rgb(58,26,10);"/>
-								<ellipse cx="335" cy="183" rx="3.5" ry="2" fill="white" opacity="0.5"/>
-								<circle cx="318" cy="165" r="8" style="fill:rgb(42,26,10);"/>
-								<circle cx="362" cy="165" r="8" style="fill:rgb(42,26,10);"/>
-								<circle cx="321" cy="162" r="2.5" fill="white"/>
-								<circle cx="365" cy="162" r="2.5" fill="white"/>
-								<path d="M327 204 Q340 214 353 204" style="fill:none;stroke:rgb(58,26,10);stroke-width:1.5px;stroke-linecap:round;"/>
-							</svg>
-						</div>
-					</div>
-				</section>
-			</div>
-		</div>
-
-		<script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js"></script>
-		<script>
-			Chart.register(ChartDataLabels);
-			Chart.defaults.plugins.datalabels = {
-				display: true,
-				anchor: function(ctx) {
-					var data = ctx.dataset.data;
-					var total = data.reduce(function(a, b) { return a + b; }, 0);
-					return data[ctx.dataIndex] / total > 0.05 ? 'center' : 'end';
-					},
-					align: function(ctx) {
-						var data = ctx.dataset.data;
-						var total = data.reduce(function(a, b) { return a + b; }, 0);
-						return data[ctx.dataIndex] / total > 0.05 ? 'center' : 'end';
-						},
-						offset: function(ctx) {
-							var data = ctx.dataset.data;
-							var total = data.reduce(function(a, b) { return a + b; }, 0);
-							return data[ctx.dataIndex] / total > 0.05 ? 0 : 6;
-							},
-							formatter: function(value, ctx) {
-								var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-								return (value / total * 100).toFixed(1) + '%';
-								},
-								color: '#073642',
-								font: function(ctx) {
-									var data = ctx.dataset.data;
-									var total = data.reduce(function(a, b) { return a + b; }, 0);
-									return data[ctx.dataIndex] / total > 0.05
-									? { size: 16, weight: 'bold' }
-									: { size: 11, weight: 'bold' };
-								}
-								};
-		</script>
-		<script src="https://cdn.jsdelivr.net/gh/rajgoel/reveal.js-plugins/chart/plugin.js"></script>
-
-		<!-- Reveal.js + highlight plugin (handles syntax highlighting + data-line-numbers) -->
-		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
-		<script>
-			Reveal.initialize({
-				width: 1280,
-				height: 720,
-				margin: 0.04,
-				controls: true,
-				progress: true,
-				slideNumber: 'c/t',
-				hash: true,
-				transition: 'slide',
-				center: false,
-				plugins: [ RevealHighlight, RevealChart ],
-				});
-		</script>
-
-		<!-- Runnable examples runtime -->
-		<script defer src="demos.js"></script>
-	</body>
+    <!-- Runnable examples runtime -->
+    <script defer src="js/demos.js"></script>
+  </body>
 </html>

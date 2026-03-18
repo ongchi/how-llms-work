@@ -1,0 +1,141 @@
+<section id="s4-concept">
+  <h2>
+    <span class="tag tag-4">04 &mdash; Attention</span>Context Changes Meaning
+  </h2>
+  <div class="content">
+    <p>
+      Static embeddings give every word one fixed vector.<br /><strong
+        >Attention</strong
+      >
+      lets each token look at all others and update its representation based on
+      context.
+    </p>
+    <div class="attn-compare">
+      <div class="attn-box">
+        <h4>"his <span style="color: #cf222e">arms</span> about the queen"</h4>
+        <div class="attn-row">
+          <span class="attn-word">the</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 100%; background: #cf222e"
+            ></div>
+          </div>
+          <span class="attn-pct">16.8%</span>
+        </div>
+        <div class="attn-row">
+          <span class="attn-word">his</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 92%; background: #cf222e; opacity: 0.7"
+            ></div>
+          </div>
+          <span class="attn-pct">15.5%</span>
+        </div>
+        <div class="attn-row">
+          <span class="attn-word">queen</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 92%; background: #cf222e; opacity: 0.5"
+            ></div>
+          </div>
+          <span class="attn-pct">15.4%</span>
+        </div>
+        <div class="attn-label" style="color: #cf222e">&rarr; EMBRACE</div>
+      </div>
+      <div class="attn-box">
+        <h4>
+          "with <span style="color: #cf222e">arms</span> and men in battle"
+        </h4>
+        <div class="attn-row">
+          <span class="attn-word">battle</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 100%; background: #cf222e"
+            ></div>
+          </div>
+          <span class="attn-pct">16.3%</span>
+        </div>
+        <div class="attn-row">
+          <span class="attn-word">and</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 87%; background: #cf222e; opacity: 0.7"
+            ></div>
+          </div>
+          <span class="attn-pct">14.2%</span>
+        </div>
+        <div class="attn-row">
+          <span class="attn-word">men</span>
+          <div class="attn-bar-wrap">
+            <div
+              class="attn-bar"
+              style="width: 78%; background: #cf222e; opacity: 0.5"
+            ></div>
+          </div>
+          <span class="attn-pct">12.7%</span>
+        </div>
+        <div class="attn-label" style="color: #bc4c00">&rarr; WEAPONS</div>
+      </div>
+    </div>
+    <div class="insight">
+      Same word. Same initial embedding.
+      <strong>Completely different contextualised meaning.</strong>
+      GPT-4 has 96 attention heads doing this at every layer, for every token.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- 10. S4 — DEMO                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="s4-demo">
+  <h2>
+    <span class="tag tag-4">04 &mdash; Demo</span>Click a Word &mdash; See What
+    It Attends To
+  </h2>
+  <div class="content">
+    <div class="attn4-input-row">
+      <input
+        id="attn4-input"
+        class="attn4-input"
+        type="text"
+        value="his arms about the queen"
+        oninput="renderAttn4Chips()"
+      />
+      <div class="attn4-presets-wrap">
+        <button
+          class="attn4-preset"
+          onclick="setAttn4('his arms about the queen')"
+        >
+          embrace
+        </button>
+        <button
+          class="attn4-preset"
+          onclick="setAttn4('with arms and men in battle')"
+        >
+          battle
+        </button>
+        <button
+          class="attn4-preset"
+          onclick="setAttn4('the king and his queen')"
+        >
+          royalty
+        </button>
+      </div>
+    </div>
+    <div class="attn4-hint">
+      1000-word Shakespeare vocab &mdash; function words (the, and, his&hellip;)
+      may show as unknown
+    </div>
+    <div id="attn4-chips" class="attn4-chips"></div>
+    <div id="attn4-label" class="attn4-from-label">
+      &#8592; click a word above
+    </div>
+    <div id="attn4-bars" class="attn4-bars"></div>
+  </div>
+</section>
