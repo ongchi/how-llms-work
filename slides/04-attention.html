@@ -5,35 +5,8 @@
     <div class="attn-compare">
       <div class="attn-box">
         <h4>"his <span style="color: #cf222e">arms</span> about the queen"</h4>
-        <div class="attn-row">
-          <span class="attn-word">the</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 100%; background: #cf222e"
-            ></div>
-          </div>
-          <span class="attn-pct">16.8%</span>
-        </div>
-        <div class="attn-row">
-          <span class="attn-word">his</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 92%; background: #cf222e; opacity: 0.7"
-            ></div>
-          </div>
-          <span class="attn-pct">15.5%</span>
-        </div>
-        <div class="attn-row">
-          <span class="attn-word">queen</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 92%; background: #cf222e; opacity: 0.5"
-            ></div>
-          </div>
-          <span class="attn-pct">15.4%</span>
+        <div class="attn-concept-chart">
+          <canvas id="attn-concept-embrace"></canvas>
         </div>
         <div class="attn-label" style="color: #cf222e">&rarr; EMBRACE</div>
       </div>
@@ -41,35 +14,8 @@
         <h4>
           "with <span style="color: #cf222e">arms</span> and men in battle"
         </h4>
-        <div class="attn-row">
-          <span class="attn-word">battle</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 100%; background: #cf222e"
-            ></div>
-          </div>
-          <span class="attn-pct">16.3%</span>
-        </div>
-        <div class="attn-row">
-          <span class="attn-word">and</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 87%; background: #cf222e; opacity: 0.7"
-            ></div>
-          </div>
-          <span class="attn-pct">14.2%</span>
-        </div>
-        <div class="attn-row">
-          <span class="attn-word">men</span>
-          <div class="attn-bar-wrap">
-            <div
-              class="attn-bar"
-              style="width: 78%; background: #cf222e; opacity: 0.5"
-            ></div>
-          </div>
-          <span class="attn-pct">12.7%</span>
+        <div class="attn-concept-chart">
+          <canvas id="attn-concept-weapons"></canvas>
         </div>
         <div class="attn-label" style="color: #bc4c00">&rarr; WEAPONS</div>
       </div>
@@ -124,6 +70,8 @@
     <div id="attn4-label" class="attn4-from-label">
       &#8592; click a word above
     </div>
-    <div id="attn4-bars" class="attn4-bars"></div>
+    <div class="attn4-bars">
+      <canvas id="attn4-bars-chart"></canvas>
+    </div>
   </div>
 </section>

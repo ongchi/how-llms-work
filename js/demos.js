@@ -84,6 +84,7 @@ function setTokInput(text) {
 
 // ── Embeddings demo (S3) ─────────────────────────────────────────────────
 let _s3Embeddings = null;
+let _embChart = null;
 
 async function loadDemo3() {
   if (_s3Embeddings) return _s3Embeddings;
@@ -112,24 +113,46 @@ async function runDemo3Sim() {
   const vec  = emb[word];
   const all  = Object.keys(emb);
 
-  const sims = all
+  const sims   = all
     .filter(w => w !== word)
     .map(w => ({ word: w, sim: embCosSim(vec, emb[w]) }))
     .sort((a, b) => b.sim - a.sim)
     .slice(0, 8);
+  const labels = sims.map(s => s.word);
+  const data   = sims.map(s => s.sim);
+  const canvas = document.getElementById('emb-bars-chart');
 
-  const maxSim = sims[0].sim;
-  document.getElementById('emb-bars').innerHTML = sims.map(({ word: w, sim }) => {
-    const pct   = Math.round((sim / maxSim) * 100);
-    const alpha = 0.25 + 0.75 * (sim / maxSim);
-    return `<div class="emb-bar-row">
-      <span class="emb-bar-word">${w}</span>
-      <div class="emb-bar-track">
-        <div class="emb-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
-      </div>
-      <span class="emb-bar-score">${sim.toFixed(3)}</span>
-    </div>`;
-  }).join('');
+  if (!_embChart) {
+    _embChart = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: 'rgba(37,99,235,0.75)', borderRadius: 4, borderSkipped: false, clip: false }] },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        layout: { padding: { right: 52 } },
+        scales: {
+          x: { display: false, min: 0 },
+          y: { ticks: { font: { family: '"SFMono-Regular",Consolas,monospace', size: 13 }, color: '#1a1a1a' }, grid: { display: false } },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+          datalabels: {
+            display: true, anchor: 'end', align: 'right', offset: 4,
+            formatter: v => v.toFixed(3),
+            font: { family: '"SFMono-Regular",Consolas,monospace', size: 12 },
+            color: '#6b7280',
+          },
+        },
+      },
+    });
+  } else {
+    _embChart.data.labels = labels;
+    _embChart.data.datasets[0].data = data;
+    _embChart.update();
+  }
 }
 
 async function runDemo3Analogy() {
@@ -163,6 +186,7 @@ async function runDemo3() {
 
 // ── Transformer loop demo (S5) ───────────────────────────────────────────
 let _s5Trigrams = null;
+let _tl5Chart = null;
 const TL_DEFAULT = 'to be or not to be that is the';
 
 async function loadDemo5() {
@@ -202,29 +226,50 @@ async function updateDemo5() {
   const temp    = demo5Temp();
   const context = demo5Context();
   const ctxEl   = document.getElementById('tl-context');
-  const barsEl  = document.getElementById('tl-bars');
+  const canvas  = document.getElementById('tl-bars-chart');
 
   if (!context || !model[context]) {
     ctxEl.textContent = context || '(need at least 2 words)';
-    barsEl.innerHTML  = '<div class="tl-no-context">No trigram found for this context</div>';
+    if (_tl5Chart) { _tl5Chart.data.labels = []; _tl5Chart.data.datasets[0].data = []; _tl5Chart.update(); }
     return;
   }
 
   ctxEl.textContent = '"' + context + '"';
   const probs  = softmaxTemp5(model[context], temp).slice(0, 8);
-  const maxP   = probs[0].prob;
+  const labels = probs.map(p => p.word);
+  const data   = probs.map(p => p.prob);
 
-  barsEl.innerHTML = probs.map(({ word, prob }) => {
-    const pct   = Math.round((prob / maxP) * 100);
-    const alpha = 0.3 + 0.7 * (prob / maxP);
-    return `<div class="tl-bar-row">
-      <span class="tl-bar-word">${word}</span>
-      <div class="tl-bar-track">
-        <div class="tl-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
-      </div>
-      <span class="tl-bar-pct">${(prob * 100).toFixed(1)}%</span>
-    </div>`;
-  }).join('');
+  if (!_tl5Chart) {
+    _tl5Chart = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: 'rgba(37,99,235,0.75)', borderRadius: 4, borderSkipped: false, clip: false }] },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 150 },
+        layout: { padding: { right: 60 } },
+        scales: {
+          x: { display: false, min: 0, max: 1 },
+          y: { ticks: { font: { family: '"SFMono-Regular",Consolas,monospace', size: 13 }, color: '#1a1a1a' }, grid: { display: false } },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+          datalabels: {
+            display: true, anchor: 'end', align: 'right', offset: 4,
+            formatter: v => (v * 100).toFixed(1) + '%',
+            font: { family: '"SFMono-Regular",Consolas,monospace', size: 12 },
+            color: '#6b7280',
+          },
+        },
+      },
+    });
+  } else {
+    _tl5Chart.data.labels = labels;
+    _tl5Chart.data.datasets[0].data = data;
+    _tl5Chart.update();
+  }
 }
 
 function demo5UpdateTemp() {
@@ -258,6 +303,44 @@ async function runDemo5() {
 
 // ── Attention demo (S4) ──────────────────────────────────────────────────
 let _attn4SelectedIdx = null;
+let _attn4Chart = null;
+let _s4ConceptInitialised = false;
+
+function makeAttnConceptChart(canvas, labels, data) {
+  return new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: 'rgba(207,34,46,0.75)', borderRadius: 4, borderSkipped: false, clip: false }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 0 },
+      layout: { padding: { right: 50 } },
+      scales: {
+        x: { display: false, min: 0, max: 20 },
+        y: { ticks: { font: { family: '"SFMono-Regular",Consolas,monospace', size: 13 }, color: '#1a1a1a' }, grid: { display: false }, afterFit: axis => { axis.width = 64; } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+        datalabels: {
+          display: true, anchor: 'end', align: 'right', offset: 4,
+          formatter: v => v.toFixed(1) + '%',
+          font: { family: '"SFMono-Regular",Consolas,monospace', size: 12 },
+          color: '#6b7280',
+        },
+      },
+    },
+  });
+}
+
+function runS4Concept() {
+  if (_s4ConceptInitialised) return;
+  _s4ConceptInitialised = true;
+  makeAttnConceptChart(document.getElementById('attn-concept-embrace'), ['the', 'his', 'queen'], [16.8, 15.5, 15.4]);
+  makeAttnConceptChart(document.getElementById('attn-concept-weapons'), ['battle', 'and', 'men'], [16.3, 14.2, 12.7]);
+}
+// ── end Attention concept charts ──────────────────────────────────────────
 
 // Reuse _s3Embeddings — same file, loaded by demo 3
 async function loadDemo4() { return loadDemo3(); }
@@ -315,19 +398,42 @@ async function selectAttn4Word(idx) {
     .map((w, i) => ({ word: w, weight: weights[i] }))
     .sort((a, b) => b.weight - a.weight);
 
-  const maxW = pairs[0]?.weight || 1;
   document.getElementById('attn4-label').textContent = `"${word}" attends to:`;
-  document.getElementById('attn4-bars').innerHTML = pairs.map(({ word: w, weight }) => {
-    const pct   = Math.round((weight / maxW) * 100);
-    const alpha = 0.25 + 0.75 * (weight / maxW);
-    return `<div class="attn4-bar-row">
-      <span class="attn4-bar-word">${w}</span>
-      <div class="attn4-bar-track">
-        <div class="attn4-bar-fill" style="width:${pct}%; opacity:${alpha}"></div>
-      </div>
-      <span class="attn4-bar-pct">${(weight * 100).toFixed(1)}%</span>
-    </div>`;
-  }).join('');
+  const labels = pairs.map(p => p.word);
+  const data   = pairs.map(p => p.weight);
+  const canvas = document.getElementById('attn4-bars-chart');
+
+  if (!_attn4Chart) {
+    _attn4Chart = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: 'rgba(37,99,235,0.75)', borderRadius: 4, borderSkipped: false, clip: false }] },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 250 },
+        layout: { padding: { right: 60 } },
+        scales: {
+          x: { display: false, min: 0 },
+          y: { ticks: { font: { family: '"SFMono-Regular",Consolas,monospace', size: 14 }, color: '#1a1a1a' }, grid: { display: false } },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+          datalabels: {
+            display: true, anchor: 'end', align: 'right', offset: 4,
+            formatter: v => (v * 100).toFixed(1) + '%',
+            font: { family: '"SFMono-Regular",Consolas,monospace', size: 13 },
+            color: '#6b7280',
+          },
+        },
+      },
+    });
+  } else {
+    _attn4Chart.data.labels = labels;
+    _attn4Chart.data.datasets[0].data = data;
+    _attn4Chart.update();
+  }
 }
 
 function setAttn4(text) {
@@ -528,6 +634,7 @@ Reveal.on('slidechanged', event => {
   if (event.currentSlide.id === 's2-concept') { runS2CountUp(); return; }
   if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
   if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
+  if (event.currentSlide.id === 's4-concept') { runS4Concept(); return; }
   if (event.currentSlide.id === 's4-demo') { runDemo4(); return; }
   if (event.currentSlide.id === 's5-demo') { runDemo5(); return; }
 
