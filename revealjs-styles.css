@@ -601,7 +601,7 @@
 .tok-controls {
   display: flex;
   gap: 10px;
-  align-items: flex-start;
+  align-items: stretch;
   flex-shrink: 0;
 }
 
@@ -613,7 +613,6 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   resize: none;
-  height: 76px;
   outline-color: #2563eb;
   line-height: 1.4;
   color: var(--text-color);
@@ -988,7 +987,7 @@
 .tl-prompt-row {
   display: flex;
   gap: 10px;
-  align-items: flex-start;
+  align-items: stretch;
   flex-shrink: 0;
 }
 
@@ -1000,7 +999,6 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   resize: none;
-  height: 68px;
   outline-color: #2563eb;
   line-height: 1.5;
   color: var(--text-color);
