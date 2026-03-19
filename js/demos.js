@@ -309,7 +309,7 @@ let _s4ConceptInitialised = false;
 function makeAttnConceptChart(canvas, labels, data) {
   return new Chart(canvas, {
     type: 'bar',
-    data: { labels, datasets: [{ data, backgroundColor: 'rgba(207,34,46,0.75)', borderRadius: 4, borderSkipped: false, clip: false }] },
+    data: { labels, datasets: [{ data, backgroundColor: 'rgba(207,34,46,0.75)', borderRadius: 4, borderSkipped: false }] },
     options: {
       indexAxis: 'y',
       responsive: true,
@@ -337,8 +337,9 @@ function makeAttnConceptChart(canvas, labels, data) {
 function runS4Concept() {
   if (_s4ConceptInitialised) return;
   _s4ConceptInitialised = true;
-  makeAttnConceptChart(document.getElementById('attn-concept-embrace'), ['the', 'his', 'queen'], [16.8, 15.5, 15.4]);
-  makeAttnConceptChart(document.getElementById('attn-concept-weapons'), ['battle', 'and', 'men'], [16.3, 14.2, 12.7]);
+  const c1 = makeAttnConceptChart(document.getElementById('attn-concept-embrace'), ['the', 'his', 'queen'], [16.8, 15.5, 15.4]);
+  const c2 = makeAttnConceptChart(document.getElementById('attn-concept-weapons'), ['battle', 'and', 'men'], [16.3, 14.2, 12.7]);
+  requestAnimationFrame(() => requestAnimationFrame(() => { c1.resize(); c2.resize(); }));
 }
 // ── end Attention concept charts ──────────────────────────────────────────
 
@@ -630,13 +631,13 @@ function runS2CountUp() {
 // ── end S2 countUp animations ─────────────────────────────────────────────
 
 Reveal.on('slidechanged', event => {
-  if (event.currentSlide.id === 's1-demo') { runDemo1(); return; }
-  if (event.currentSlide.id === 's2-concept') { runS2CountUp(); return; }
-  if (event.currentSlide.id === 's2-demo') { runDemo2(); return; }
-  if (event.currentSlide.id === 's3-demo') { runDemo3(); return; }
-  if (event.currentSlide.id === 's4-concept') { runS4Concept(); return; }
-  if (event.currentSlide.id === 's4-demo') { runDemo4(); return; }
-  if (event.currentSlide.id === 's5-demo') { runDemo5(); return; }
+  if (event.currentSlide.id === 's1-bigram-demo') { runDemo1(); return; }
+  if (event.currentSlide.id === 's2-tokenization') { runS2CountUp(); return; }
+  if (event.currentSlide.id === 's2-tokenizer-demo') { runDemo2(); return; }
+  if (event.currentSlide.id === 's3-embeddings-demo') { runDemo3(); return; }
+  if (event.currentSlide.id === 's4-attention') { runS4Concept(); return; }
+  if (event.currentSlide.id === 's4-attention-demo') { runDemo4(); return; }
+  if (event.currentSlide.id === 's5-transformer-demo') { runDemo5(); return; }
 
   const split = event.currentSlide.querySelector('.code-split');
   if (split) {

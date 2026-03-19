@@ -193,6 +193,34 @@
 #s2-count-tokens-1 { color: #2563eb; }
 #s2-count-types-1  { color: #ea580c; }
 
+/* ── S1 concept layout ───────────────────────────────────────────────────── */
+
+#s1-autocomplete h2 {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+#s1-autocomplete .content {
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+#s1-autocomplete .fragment.blur {
+  filter: blur(8px);
+  opacity: 0.9;
+}
+
+#s1-autocomplete .fragment.blur.visible {
+  filter: none;
+  opacity: 1;
+}
+
 /* ── Two-column grid ─────────────────────────────────────────────────────── */
 
 .two-col {
@@ -215,6 +243,8 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 14px 18px;
+  min-width: 0;
+  overflow: hidden;
 }
 .attn-box h4 { color: #6b7280; margin-bottom: 10px; font-size: 13pt; }
 .attn-concept-chart {
@@ -455,9 +485,6 @@
   gap: 24px;
   flex-wrap: wrap;
   padding: 16px 20px;
-  background: #f3f4f6;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
   flex-shrink: 0;
 }
 
@@ -593,7 +620,7 @@
   outline-color: #2563eb;
   line-height: 1.4;
   color: var(--text-color);
-  background: #ffffff;
+  background: #f8f9fa;
 }
 
 .tok-presets {
@@ -623,7 +650,7 @@
   padding: 12px 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #ffffff;
+  background: #f8f9fa;
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
@@ -686,6 +713,11 @@
   display: flex;
   align-items: center;
 }
+
+/* ── Tokenizer demo overrides ────────────────────────────────────────────── */
+
+#s2-tokenizer-demo .content { flex: none; }
+#s2-tokenizer-demo .tok-tokens { flex: none; height: 110px; }
 
 /* ── Embeddings demo ─────────────────────────────────────────────────────── */
 
@@ -798,7 +830,7 @@
   border-radius: 8px;
   outline-color: #2563eb;
   color: var(--text-color);
-  background: #ffffff;
+  background: #f8f9fa;
 }
 
 .attn4-presets-wrap {
@@ -899,7 +931,7 @@
   outline-color: #2563eb;
   line-height: 1.5;
   color: var(--text-color);
-  background: #ffffff;
+  background: #f8f9fa;
 }
 
 .tl-prompt-btns {

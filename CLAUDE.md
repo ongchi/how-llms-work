@@ -102,6 +102,17 @@ The presentation uses **[reveal.js](https://revealjs.com/)** — a standard slid
 | 04 | Click-a-word attention bars | `data/embeddings.json` (shared) |
 | 05 | Temperature slider + next-word generator | `data/trigrams.json` |
 
+## Section IDs
+
+Every `<section>` slide element must have an `id` following the pattern `s{N}-{name}`, where `N` is the section number and `name` is a short kebab-case description of the slide content:
+
+```html
+<section id="s4-attention">...</section>
+<section id="s4-attention-demo">...</section>
+```
+
+These IDs are used by `js/demos.js` to trigger demo initialisation on `slidechanged`. When adding or renaming a slide, update both the HTML `id` and the corresponding reference in `demos.js`.
+
 ## Section comments in JS files
 
 Every logical section in a JS file must be wrapped with matching start and end banner comments so sections are easy to locate:
