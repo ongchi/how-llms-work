@@ -25,14 +25,17 @@ Scale this to billions of parameters and trillions of words, and you get GPT-4.
 
 LLMs don't read raw characters. They split text into **tokens** — common words or word fragments —
 and assign each one a numeric ID. This keeps the vocabulary manageable:
-Shakespeare's complete works (5.5M characters) compress down to just **25,900 unique tokens**.
+Shakespeare's complete works compress down to just **~996,000 tokens** across **~25,900 unique token types**.
+
+The five most frequent tokens in Shakespeare — "the", "and", "i", "to", "of" — account for a
+surprisingly large share of the corpus; all other tokens make up the vast majority.
 
 `"To be or not to be, that is the question"` → `[51, 230, 36, 47, 51, 230, 83, 10, 0, 686]`
 
 **Demo:** Live tokenizer playground. Type any text and watch it split into colour-coded token chips
 in real time. Each chip's background colour is determined by its vocabulary ID; unknown words
 (not in Shakespeare's top-25,900) appear in red. The encoded ID array and token count are shown below.
-Preset buttons load the Hamlet quote, a pangram, and a word outside the vocabulary.
+Preset buttons load the Hamlet quote, a pangram, and an unknown word.
 
 > **Key insight:** The model sees a stream of integers, never raw text. Token IDs are just indices
 > into a lookup table — and the same word always gets the same ID, no matter where it appears.
@@ -89,7 +92,7 @@ Each of the previous sections is one stage of the same pipeline:
 "to be or not to be, that is the ___"
   → Tokenize   (section 2) → [51, 230, 36, 47, 51, 230, 83, 10, 0, ...]
   → Embed      (section 3) → numerical representations as high-dimensional vectors
-  → Attend     (section 4) → context-aware vectors
+  → Attend     (section 4) → context-aware vectors (with Sliding Window Attention)
   → Logits                 → raw scores over the whole vocabulary
   → Softmax(T)             → probability distribution
   → Sample                 → next token
@@ -115,44 +118,32 @@ making the peaked-vs-flat effect visible. `Reset` returns to the Hamlet quote.
 A model starts with random weights.
 Training adjusts those weights so it gets better at next-token prediction.
 
-**Self-supervised learning:** The training data is the entire internet.
-For every sentence, mask the last word and ask the model to predict it.
-No human labels needed — the correct answer is already in the text.
-
-**RLHF (Reinforcement Learning from Human Feedback):** After pre-training,
-human raters score model responses. A separate "reward model" learns their preferences,
-then the LLM is fine-tuned to maximize that reward — making it helpful, harmless, and honest.
+- **Measure error → compute gradient → nudge weights → repeat**
+- **Self-supervised learning:** The training data is the entire internet. For every sentence,
+  mask the last word and ask the model to predict it. No human labels needed — the correct
+  answer is already in the text. (GPT-3: ~1 trillion tokens)
+- **RLHF (Reinforcement Learning from Human Feedback):** After pre-training, human raters score
+  model responses. A separate "reward model" learns their preferences, then the LLM is
+  fine-tuned to maximize that reward — making it helpful, harmless, and honest.
+  (GPT-3: 175 billion parameters)
 
 > **Key insight:** Real training runs this loop billions of times, across billions of parameters,
 > on thousands of GPUs. Same math, vastly bigger scale.
 
 ---
 
-## 7. Beyond Text — CNNs, Multimodal AI, and Diffusion
+## 7. AI Agents — From Model to Agent
 
-**Convolutional Neural Networks (CNNs)** are the standard for image understanding.
-Instead of attention across tokens, they slide small filter kernels across pixels
-to detect edges, shapes, and textures.
-
-**Multimodal AI** (GPT-4o, Gemini, Claude) combines a vision encoder (CNN or ViT) with a
-language model so the system can reason about both text and images.
-
-**Diffusion models** (Stable Diffusion, DALL-E, Midjourney)
-generate images by starting from pure random noise and iteratively denoising it — like
-developing a photograph in reverse.
-
-> **Key insight:** A deep CNN stacks many such layers. Early layers detect edges, later layers
-> detect eyes, faces, cars — complexity builds up automatically through training.
-
----
-
-## 8. AI Agents — From Model to Agent
+**Intro:** *"want to build an agent? use the tools, Luke!"*
 
 The **wrapper** (ChatGPT, Claude) adds: system prompt, system tools, memory, chat history, and more — before sending to the LLM model.
 
-**Demo:** Step-by-step trace of a ReAct agent solving "What is the sum of the first 5 prime numbers?"
-— reason, tool call, observe, reason, answer. Shows exactly how the loop hands off between
-the model and user code.
+**Demo:** Step-by-step animated trace of a ReAct agent solving "What is the sum of the first 5 prime numbers?". The agent loop is shown alongside the code, advancing one step at a time:
+1. 🤔 **Reason** — identify the first 5 primes: 2, 3, 5, 7, 11
+2. ⚡ **Act** — `calculate("2 + 3 + 5 + 7 + 11")`
+3. 📥 **Observe** — `28`
+4. 🤔 **Reason** — the calculator returned 28, that's the answer
+5. ✅ **Answer** — the sum is **28**
 
 ### The CLI is a Natural Agent Interface
 
@@ -175,31 +166,26 @@ Composability is free: pipe output from one tool as input to the next, the same 
 | | **MCP — Model Context Protocol** | **Skills** |
 |---|---|---|
 | **What** | Open standard for tool ↔ model communication | Named prompt + tool sequence |
-| **How it works** | Server advertises tool schemas; model calls them via structured tokens | Invocation expands to a full prompt that instructs the model to call the right tools in order |
-| **Benefit** | Write once, use with any compatible model or agent framework | Capture expert workflows once, reuse them anywhere |
-| **Examples** | Postgres MCP, browser MCP, GitHub MCP | `/commit`, `/review-pr`, browser automation |
+| **How** | Server exposes schemas; model calls tools as structured tokens | Command expands to a prompt that drives the tool sequence |
+| **Benefit** | One server, any compatible model | Capture a workflow once, reuse anywhere |
 
 > **Key insight:** MCP is the plug standard; Skills are the appliances. MCP defines how tools speak to models — Skills define what the model does with them.
 
 ---
 
-## 9. Now You Know How It Works
+## 8. Now You Know How It Works
 
-- **Prompt engineering** — the system prompt and conversation history are just more tokens. Context matters.
 - **Hallucinations** — the model is sampling a distribution. It predicts plausible continuations, not facts.
-- **Tool use / function calling** — the wrapper routes structured output tokens to real function calls.
-- **RAG (Retrieval-Augmented Generation)** — inject relevant documents into the context before asking. Same mechanism.
-- **Fine-tuning** — RLHF on a smaller, domain-specific dataset. Same mechanism, different data.
-
-> **The magic isn't magic — it's matrix multiplication at scale, trained on human knowledge, guided by human feedback.**
+- **Context management** — the system prompt, conversation history, and injected documents (RAG) are all just tokens. Memory systems extend this further.
+- **ReAct (Reasoning and Action)** — reason about the goal, act with a tool, observe the result. The agent loop from section 7.
+- **Chain-of-Thought (CoT)** — reasoning models generate hidden CoT tokens before the final answer, improving accuracy on complex tasks.
 
 ---
 
-## Credits
+## Closing — Be Like Momo
 
-| | | |
-|---|---|---|
-| Training corpus | *The Complete Works of William Shakespeare* | Project Gutenberg eBook #100 — public domain |
-| Presentation | reveal.js | Hakim El Hattab — MIT License |
-| Graph visualisation | Sigma.js & Graphology | MIT License |
-| Syntax highlighting | highlight.js | BSD 3-Clause License |
+Momo walked across a keyboard. Momo got kibble.
+Momo doesn't know what vibe coding is. Momo doesn't care.
+Momo is smart.
+
+*(Reference: [I Taught My Dog to Vibe Code Games](https://www.calebleak.com/posts/dog-game/))*
